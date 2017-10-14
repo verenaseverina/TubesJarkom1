@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 	bzero(buffer,256);
 	fgets(buffer,255,stdin);
 
-	n = sendto(sockfd, buffer, strlen(buffer), 0, (struct sockaddr* ) &serv_addr, sizeof(serv_addr));
+	n = sendto(sockfd, buffer, 256, 0, (struct sockaddr* ) &serv_addr, sizeof(serv_addr));
 
 	return 0;
 }

@@ -1,1 +1,3 @@
 *.o
+sendfile
+recvfile

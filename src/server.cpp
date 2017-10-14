@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 
 	while(1)
 	{
-		n = recvfrom(sockfd, buffer, strlen(buffer), 0, (struct sockaddr* ) &cli_addr, &clilen);
+		n = recvfrom(sockfd, buffer, 256, 0, (struct sockaddr* ) &cli_addr, &clilen);
 		printf("%s\n",buffer);
 	}
 
