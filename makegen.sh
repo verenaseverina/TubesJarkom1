@@ -64,7 +64,9 @@ then
 	printf "Generating Makefile ...\n"
 
 	# Write linking executable rule
-
+	
+	printf "all: sendfile recvfile\n\n" >> Makefile
+	
 	printf "sendfile: client.o $object_files\n" >> Makefile
 	printf "	@echo \"Linking sendfile ...\"\n" >> Makefile
 	printf "	@g++ client.o $object_files -o sendfile\n\n" >> Makefile
@@ -94,9 +96,7 @@ then
 	printf "	@rm -rf *.o\n" >> Makefile
 	
 	printf "\n	@echo \"Removing executable ...\"\n" >> Makefile
-	printf "	@rm -rf sendfile recvfile\n\n" >> Makefile
-
-	printf "all : sendfile recvfile" >> Makefile
+	printf "	@rm -rf sendfile recvfile\n" >> Makefile
 else
 	printf "Cannot find \"src\" folder. Please put your source files (except drivers) in \"src\" folder.\n"
 fi

@@ -1,3 +1,5 @@
+all: sendfile recvfile
+
 sendfile: client.o  
 	@echo "Linking sendfile ..."
 	@g++ client.o   -o sendfile
@@ -22,5 +24,3 @@ clean:
 
 	@echo "Removing executable ..."
 	@rm -rf sendfile recvfile
-
-all : sendfile recvfile
