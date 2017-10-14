@@ -1,33 +1,54 @@
 #include <stdio.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string.h>
 #include <stdlib.h>
-#include <time.h>
+#include <unistd.h>
 
-// Global Variable
-struct sockaddr_in serverAddr, clientAddr;
-struct sockaddr_storage serverStorage;
-socklen_t addr_size, client_addr_size;
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 
-void configureSetting(int portNum) {
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(portNum);
-	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
-}
-int main (int argc, char* argv[]) {
-	if (argc != 5) {
-		cout << "Usage : ./recvfile <filename> <windowsize> <buffersize> <port>" << endl;
-	} else {
-		int udpSocket, portNum;
-		portNum = atoi(argv[1]);
-	  	udpSocket = socket(PF_INET, SOCK_DGRAM, 0);
+#include <string.h>
 
-	  	configureSetting(portNum);
-		bind(udpSocket, (struct sockaddr *) &serverAddr, sizeof(serverAddr));
-		
-		addr_size = sizeof serverStorage;
+int main(int argc, char* argv[])
+{
+	int sockfd, newsockfd, portno;
+	socklen_t clilen;
+	char buffer[256];
+	struct sockaddr_in serv_addr, cli_addr;
+	int n;
+
+	/* Setting up socket */
+
+	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+	if(sockfd < 0)
+	{
+		perror("ERROR opening socket");
+		exit(1);
 	}
+
+	bzero((char *) &serv_addr, sizeof(serv_addr));
+	portno = 4444;
+
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons(portno);
+
+	/* Bind */
+
+	if(bind(sockfd,(struct sockaddr*) &serv_addr, sizeof(serv_addr)) < 0)
+	{
+		perror("ERROR on binding");
+		exit(1);
+	}
+
+	clilen = sizeof(cli_addr);
+
+	while(1)
+	{
+		n = recvfrom(sockfd, buffer, strlen(buffer), 0, (struct sockaddr* ) &cli_addr, &clilen);
+		printf("%s\n",buffer);
+	}
+
 	return 0;
 }
