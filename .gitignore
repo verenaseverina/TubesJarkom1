@@ -1,3 +1,4 @@
 *.o
 sendfile
 recvfile
+lorem.txt

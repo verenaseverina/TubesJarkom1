@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+
 /* Global variables */
 
 int socket_fd; // socket file descriptor, 
@@ -15,17 +16,25 @@ int port_num; // port number
 
 struct sockaddr_in server_addr, client_addr; // server and client socket address
 socklen_t client_len; // client server length
-
 char buffer[256]; // buffer
+
+char* file_buffer; // buffer for write file
+long file_size = 0; // file size in bytes
+
 int _recv;
+
+
+/* Constants */
 
 const char* open_err = "open";
 const char* bind_err = "bind";
+
 
 /* Subprograms */
 
 void error(const char* type)
 {
+	// Print error message
 	if(strcmp(type, "open") == 0) perror("Socket open error");
 	else if(strcmp(type, "bind") == 0) perror("Socket bind error");
 
@@ -55,10 +64,35 @@ void recv_data()
 {
 	// Receive and print message
 	client_len = sizeof(client_addr);
-	
-	_recv = recvfrom(socket_fd, buffer, 256, 0, (struct sockaddr* ) &client_addr, &client_len);
-	printf("%s",buffer);
+	file_buffer = (char*) malloc(sizeof(char) * 1024); // allocate buffer for file (still hardcoded)
+	int cnt = 0; // counter
+
+	while(cnt < 3) // how many times we need to receive the file (still hardcoded)
+	{
+		_recv = recvfrom(socket_fd, buffer, 256, 0, (struct sockaddr* ) &client_addr, &client_len); // receive data
+		bcopy(buffer, file_buffer+(255 * cnt), 255 * sizeof(char)); // copy all 255 bytes to buffer
+		cnt++; // increment counter to fill the next 255 bytes
+
+		file_size += (sizeof(char) * strlen(buffer)); // compute file size, use strlen to ignore trailing NULL
+	}
+
+	file_buffer[255*cnt] = '\0'; // ensure buffer is ended with NULL
 }
+
+void write_file()
+{
+	FILE* file;
+	const char* filename = "lorem.txt"; // file path relative to root folder
+
+	file = fopen(filename,"wb"); // open in binary mode
+
+	fwrite(file_buffer, 1, file_size, file); // write file
+	fclose(file);
+	free(file_buffer); // free buffer
+
+	printf("File received.\n"); // notify user
+}
+
 
 /* Main */
 
@@ -66,6 +100,7 @@ int main(int argc, char* argv[])
 {
 	setup();
 	recv_data();
+	write_file();
 	
 	return 0;
 }
