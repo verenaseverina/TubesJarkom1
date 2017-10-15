@@ -1,10 +1,10 @@
 #pragma once
 
 typedef struct {
-    char SOH; // start of header
-    uint32_t SeqNum; // sequence number of packet
-    char STX; // start of text
+    const char SOH = 0x1; // start of header
+    uint32_t seqnum; // sequence number of packet
+    const char STX = 0x2; // start of text
     char data; // data
-    char ETX; // end of text
+    const char ETX = 0x3; // end of text
     uint8_t checksum; // checksum
 } packet;
