@@ -45,7 +45,7 @@ void setup()
 	server_addr.sin_port = htons(port_num);
 }
 
-void send()
+void send_data()
 {
 	printf("Please enter the message: ");
 	bzero(buffer,256);
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	if(server == NULL) error(host_err);
 
 	setup();
-	send();
+	send_data();
 
 	return 0;
 }

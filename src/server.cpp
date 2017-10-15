@@ -51,7 +51,7 @@ void setup()
 	if(bind(socket_fd,(struct sockaddr*) &server_addr, sizeof(server_addr)) < 0) error(bind_err);
 }
 
-void recv()
+void recv_data()
 {
 	// Receive and print message
 	client_len = sizeof(client_addr);
@@ -65,7 +65,7 @@ void recv()
 int main(int argc, char* argv[])
 {
 	setup();
-	recv();
+	recv_data();
 	
 	return 0;
 }
