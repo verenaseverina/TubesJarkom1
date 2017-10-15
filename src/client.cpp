@@ -1,55 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include <string.h>
+/* Global variables */
 
+int socket_fd; // socket file descriptor
+int port_num; // port number
 
-int main(int argc, char *argv[])
+struct sockaddr_in server_addr; // server socket address
+struct hostent *server; // host information
+char buffer[256]; // buffer
+int _send;
+
+const char* open_err = "open";
+const char* host_err = "host";
+
+/* Subprograms */
+
+void error(const char* type)
 {
-	int sockfd, portno, n;
-	struct sockaddr_in serv_addr;
-	struct hostent *server;
+	if(strcmp(type, "open") == 0) perror("Socket open error");
+	else if(strcmp(type, "host") == 0) perror("Socket host error");
 
-	char buffer[256];
+	exit(1);
+}
 
-	if (argc < 3) {
-	  fprintf(stderr,"usage %s hostname port\n", argv[0]);
-	  exit(0);
-	}
+void setup()
+{
+	// Open socket
+	socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
+	
+	if(socket_fd < 0) error(open_err);
 
-	portno = atoi(argv[2]);
+	// Set server address
+	bzero((char *) &server_addr, sizeof(server_addr));
+	server_addr.sin_family = AF_INET;
+	bcopy((char *)server->h_addr, (char *)&server_addr.sin_addr.s_addr, server->h_length);
+	server_addr.sin_port = htons(port_num);
+}
 
-	/* Create a socket point */
-	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-
-	if (sockfd < 0) {
-	  perror("ERROR opening socket");
-	  exit(1);
-	}
-
-	server = gethostbyname(argv[1]);
-
-	if (server == NULL) {
-	  fprintf(stderr,"ERROR, no such host\n");
-	  exit(0);
-	}
-
-	bzero((char *) &serv_addr, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	bcopy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
-	serv_addr.sin_port = htons(portno);
-
+void send()
+{
 	printf("Please enter the message: ");
 	bzero(buffer,256);
 	fgets(buffer,255,stdin);
 
-	n = sendto(sockfd, buffer, 256, 0, (struct sockaddr* ) &serv_addr, sizeof(serv_addr));
+	_send = sendto(socket_fd, buffer, 256, 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+}
+
+/* Main */
+
+int main(int argc, char *argv[])
+{
+	port_num = atoi(argv[2]); // convert port number to integer
+	server = gethostbyname(argv[1]); // get host from name
+
+	if(server == NULL) error(host_err);
+
+	setup();
+	send();
 
 	return 0;
 }
