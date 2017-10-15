@@ -9,7 +9,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-
+#include "packet.h"
+#include "ack.h"
 /* Global variables */
 
 int socket_fd; // socket file descriptor
