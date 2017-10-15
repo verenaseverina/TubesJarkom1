@@ -6,4 +6,4 @@ typedef struct {
     uint8_t adv_windsize; // advertised window size
     uint8_t checksum; // checksum
 }
-ack;
+Ack;
