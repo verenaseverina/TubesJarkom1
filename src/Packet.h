@@ -9,5 +9,7 @@ typedef struct {
     char data; // data
     const char ETX = 0x3; // end of text
     uint8_t checksum; // checksum
-}
-Packet;
+} __attribute__((packed)) Packet;
+
+//Packet constructor
+Packet makePacket(uint32_t sequenceNumber, char dataPayload);
