@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 typedef struct {
     const char SOH = 0x1; // start of header
     uint32_t seqnum; // sequence number of packet
