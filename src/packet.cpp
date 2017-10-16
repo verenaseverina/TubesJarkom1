@@ -1,4 +1,4 @@
-#include "Packet.h"
+#include "packet.h"
 
 Packet makePacket(uint32_t sequenceNumber, char dataPayload){
 	//create packet	
