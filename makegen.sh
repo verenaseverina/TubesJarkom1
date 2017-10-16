@@ -5,6 +5,12 @@ then
 	printf "Collecting information from source files ...\n"
 
 	src_folders=$(find src -type d | grep -o -P '(?<=src/).+') # find all subdirectories of src
+	obj_folder="bin" # folder of object files
+
+	if [[ ! -d bin ]]
+	then
+		mkdir bin
+	fi
 
 	touch Makefile # assure Makefile exists
 	rm Makefile # remove Makefile
@@ -35,14 +41,14 @@ then
 					object_files+=" "
 				fi
 
-				object_files+="$filepath_in_src$filename.o" # object files
+				object_files+="$obj_folder/$filepath_in_src$filename.o" # object files
 			fi
 			
 			includes=$(cat "$files" | grep -o -P '#include *".+"') # get all #include
 			dependencies=$(printf "$includes" | grep -o -P '(?<=")[^"]+') # get all dependencies
 			
 			((cnt++))
-			rules[cnt]="$filepath_in_src$filename.o: $files" # add object code name
+			rules[cnt]="$obj_folder/$filepath_in_src$filename.o: $files" # add object code name
 			files[cnt]=$files
 			
 			for dependency in $dependencies
@@ -67,13 +73,13 @@ then
 	
 	printf "all: sendfile recvfile\n\n" >> Makefile
 	
-	printf "sendfile: sender.o $object_files\n" >> Makefile
+	printf "sendfile: $obj_folder/sender.o $object_files\n" >> Makefile
 	printf "	@echo \"Linking sendfile ...\"\n" >> Makefile
-	printf "	@g++ sender.o $object_files -o sendfile -g\n\n" >> Makefile
+	printf "	@g++ $obj_folder/sender.o $object_files -o sendfile -g\n\n" >> Makefile
 
-	printf "recvfile: receiver.o $object_files\n" >> Makefile
+	printf "recvfile: $obj_folder/receiver.o $object_files\n" >> Makefile
 	printf "	@echo \"Linking recvfile ...\"\n" >> Makefile
-	printf "	@g++ receiver.o $object_files -o recvfile -g\n\n" >> Makefile
+	printf "	@g++ $obj_folder/receiver.o $object_files -o recvfile -g\n\n" >> Makefile
 
 	# Write compiling source file rule
 
@@ -93,7 +99,7 @@ then
 
 	printf "clean:\n" >> Makefile
 	printf "	@echo \"Removing object files ...\"\n" >> Makefile
-	printf "	@rm -rf *.o\n" >> Makefile
+	printf "	@rm -rf bin/*.o\n" >> Makefile
 	
 	printf "\n	@echo \"Removing executable ...\"\n" >> Makefile
 	printf "	@rm -rf sendfile recvfile" >> Makefile

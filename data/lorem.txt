@@ -1,6 +1,1 @@
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque in turpis id ligula vestibulum
-placerat eget non eros. Aliquam erat volutpat. Aliquam blandit dolor velit, id tristique diam iaculis sit
-amet. Integer eu vehicula felis, ut consectetur nisl. Etiam placerat quam quis suscipit luctus.
-Aenean pharetra, nunc eget ultrices scelerisque, magna enim sollicitudin justo, eget faucibus sem tellus
-nec felis. Curabitur nec dolor iaculis, pulvinar nulla eget, tincidunt nulla. In quis nulla quis justo
-euismod facilisis efficitur ac lectus.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.

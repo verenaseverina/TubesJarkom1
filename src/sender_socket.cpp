@@ -1,21 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <strings.h>
 
 #include "sender_socket.h"
 
-void open(int &socket)
+void open_sender(int &socket_fd)
 {
-    socket = socket(AF_INET, SOCK_DGRAM, 0);
+    socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	
-	if(socket < 0)
+	if(socket_fd < 0)
 	{
 		perror("Error opening socket");
 		exit(1);
 	}
 }
 
-void setup(struct sockaddr_in &server_addr, struct hostent* &server, int port_num)
+void setup_sender(struct sockaddr_in &server_addr, struct hostent* &server, int port_num)
 {
 	bzero((char *) &server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;

@@ -1,4 +1,4 @@
-*.o
+bin/*.o
 sendfile
 recvfile
 lorem.txt

@@ -1,17 +1,19 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "file.h"
 
-void file_size(FILE* &file)
+long get_size(FILE* &file)
 {
     fseek(file, 0, SEEK_END);
-    int size = ftell(file);
+    long size = ftell(file);
     rewind(file);
 
     return size;
 }
 
-void open_file(const char* &filename, FILE* &file, const char* &mode)
+void open_file(const char* &filename, FILE* &file, const char* mode)
 {
     file = fopen(filename, mode); // open in binary mode
 
@@ -27,7 +29,7 @@ void read_file(const char* filename, int &file_size, char* &file_buffer)
 	FILE* file;
 	open_file(filename, file, "rb");
     
-    file_size = file_size(file); // get file size
+    file_size = get_size(file); // get file size
 	file_buffer = (char*) malloc(sizeof(char) * file_size); // allocate buffer for file
 
 	size_t read_size = fread(file_buffer, 1, file_size, file); // read file
@@ -41,7 +43,7 @@ void read_file(const char* filename, int &file_size, char* &file_buffer)
 	fclose(file);
 }
 
-void write_file(const char* filename, FILE* &file, int &file_size, char* &file_buffer)
+void write_file(const char* filename, int &file_size, char* &file_buffer)
 {
 	FILE* file;
 	open_file(filename, file, "wb"); // open in binary mode
