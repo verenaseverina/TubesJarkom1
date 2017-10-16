@@ -26,7 +26,7 @@ then
 		then
 			filepath_in_src=$(printf "$filepath" | grep -o -P '(?<=src/).+') # get file path relative to src
 			
-			if [[ $filename != "client" ]] && [[ $filename != "server" ]] # exclude server and client from object files
+			if [[ $filename != "sender" ]] && [[ $filename != "receiver" ]] # exclude server and client from object files
 			then
 				if [[ $first_obj_file == true ]]
 				then
@@ -67,13 +67,13 @@ then
 	
 	printf "all: sendfile recvfile\n\n" >> Makefile
 	
-	printf "sendfile: client.o $object_files\n" >> Makefile
+	printf "sendfile: sender.o $object_files\n" >> Makefile
 	printf "	@echo \"Linking sendfile ...\"\n" >> Makefile
-	printf "	@g++ client.o $object_files -o sendfile -g\n\n" >> Makefile
+	printf "	@g++ sender.o $object_files -o sendfile -g\n\n" >> Makefile
 
-	printf "recvfile: server.o $object_files\n" >> Makefile
+	printf "recvfile: receiver.o $object_files\n" >> Makefile
 	printf "	@echo \"Linking recvfile ...\"\n" >> Makefile
-	printf "	@g++ server.o $object_files -o recvfile -g\n\n" >> Makefile
+	printf "	@g++ receiver.o $object_files -o recvfile -g\n\n" >> Makefile
 
 	# Write compiling source file rule
 
