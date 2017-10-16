@@ -7,7 +7,7 @@ Packet makePacket(uint32_t sequenceNumber, char dataPayload){
 	p.data = dataPayload;
 
 	//count checksum
-	p.chekcksum = ((uint8_t)p.SOH + (uint8_t)p.seqnum + (uint8_t)p.STX + (uint8_t)p.data + (uint8_t)p.ETX)%256;
+	p.checksum = ((uint8_t)p.SOH + (uint8_t)p.seqnum + (uint8_t)p.STX + (uint8_t)p.data + (uint8_t)p.ETX)%256;
 	return p;
 }
 
