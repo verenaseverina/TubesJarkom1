@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "receiver_window.h"
 /* Global variables */
 
 char filename[256];
@@ -38,6 +38,7 @@ void validate(int count, char** &arg)
 int main(int argc, char** argv)
 {
 	validate(argc, argv);
-
+	recvWindow window = makeWindow(win_size);
+	
 	return 0;
 }
