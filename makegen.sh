@@ -26,15 +26,15 @@ then
 		then
 			filepath_in_src=$(printf "$filepath" | grep -o -P '(?<=src/).+') # get file path relative to src
 			
-			if [[ $first_obj_file == true ]]
-			then
-				first_obj_file=false
-			else
-				object_files+=" "
-			fi
-			
 			if [[ $filename != "client" ]] && [[ $filename != "server" ]] # exclude server and client from object files
 			then
+				if [[ $first_obj_file == true ]]
+				then
+					first_obj_file=false
+				else
+					object_files+=" "
+				fi
+
 				object_files+="$filepath_in_src$filename.o" # object files
 			fi
 			

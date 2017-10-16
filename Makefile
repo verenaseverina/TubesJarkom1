@@ -1,12 +1,12 @@
 all: sendfile recvfile
 
-sendfile: client.o Ack.o  Packet.o 
+sendfile: client.o Ack.o Packet.o
 	@echo "Linking sendfile ..."
-	@g++ client.o Ack.o  Packet.o  -o sendfile -g
+	@g++ client.o Ack.o Packet.o -o sendfile -g
 
-recvfile: server.o Ack.o  Packet.o 
+recvfile: server.o Ack.o Packet.o
 	@echo "Linking recvfile ..."
-	@g++ server.o Ack.o  Packet.o  -o recvfile -g
+	@g++ server.o Ack.o Packet.o -o recvfile -g
 
 Ack.o: src/Ack.cpp src/Ack.h
 	@echo "Compiling Ack.cpp ..."
