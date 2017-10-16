@@ -86,7 +86,7 @@ then
 	for i in $(seq 1 $cnt)
 	do
 		current_obj_path=$(printf "${rules[i]}" | grep -o -P '^[^:]+')
-		src_name=$(printf "${rules[i]}" | grep -o -P '^[^\.]+')
+		src_name=$(printf "${rules[i]}" | grep -o -P "(?<=$obj_folder/)[^\.]+")
 
 		printf "${rules[i]}\n" >> Makefile
 		printf "	@echo \"Compiling $src_name.cpp ...\"\n" >> Makefile
@@ -101,7 +101,7 @@ then
 	printf "	@echo \"Removing object files ...\"\n" >> Makefile
 	printf "	@rm -rf bin/*.o\n" >> Makefile
 	
-	printf "\n	@echo \"Removing executable ...\"\n" >> Makefile
+	printf "\n	@echo \"Removing executables ...\"\n" >> Makefile
 	printf "	@rm -rf sendfile recvfile" >> Makefile
 else
 	printf "Cannot find \"src\" folder. Please put your source files (except drivers) in \"src\" folder.\n"
