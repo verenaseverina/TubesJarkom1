@@ -9,6 +9,14 @@
 #include <sys/socket.h>
 
 
+/* Constants */
+
+#define BUFFER_SIZE 256
+
+#define OPEN_ERR "open"
+#define BIND_ERR "host"
+
+
 /* Global variables */
 
 int socket_fd; // socket file descriptor, 
@@ -16,18 +24,12 @@ int port_num; // port number
 
 struct sockaddr_in server_addr, client_addr; // server and client socket address
 socklen_t client_len; // client server length
-char buffer[256]; // buffer
+char buffer[BUFFER_SIZE]; // buffer
 
 char* file_buffer; // buffer for write file
 long file_size = 0; // file size in bytes
 
 int _recv;
-
-
-/* Constants */
-
-const char* open_err = "open";
-const char* bind_err = "bind";
 
 
 /* Subprograms */
@@ -46,7 +48,7 @@ void setup()
 	// Open socket
 	socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	
-	if(socket_fd < 0) error(open_err);
+	if(socket_fd < 0) error(OPEN_ERR);
 
 	// Set server address and port number
 	bzero((char *) &server_addr, sizeof(server_addr));
@@ -57,7 +59,7 @@ void setup()
 	server_addr.sin_port = htons(port_num);
 
 	// Bind socket
-	if(bind(socket_fd,(struct sockaddr*) &server_addr, sizeof(server_addr)) < 0) error(bind_err);
+	if(bind(socket_fd,(struct sockaddr*) &server_addr, sizeof(server_addr)) < 0) error(BIND_ERR);
 }
 
 void recv_data()
@@ -69,14 +71,23 @@ void recv_data()
 
 	while(cnt < 3) // how many times we need to receive the file (still hardcoded)
 	{
-		_recv = recvfrom(socket_fd, buffer, 256, 0, (struct sockaddr* ) &client_addr, &client_len); // receive data
-		bcopy(buffer, file_buffer+(255 * cnt), 255 * sizeof(char)); // copy all 255 bytes to buffer
-		cnt++; // increment counter to fill the next 255 bytes
+		_recv = recvfrom(socket_fd, buffer, BUFFER_SIZE, 0, (struct sockaddr* ) &client_addr, &client_len); // receive data
+		
+		if(strlen(buffer) >= BUFFER_SIZE)
+		{
+			bcopy(buffer, file_buffer+(BUFFER_SIZE * cnt), BUFFER_SIZE * sizeof(char));
+			file_size += (sizeof(char) * BUFFER_SIZE); 
+		}
+		else
+		{
+			bcopy(buffer, file_buffer+(BUFFER_SIZE * cnt), strlen(buffer) * sizeof(char));  // copy non-null bytes to buffer
+			file_size += (sizeof(char) * strlen(buffer)); // compute file size, use strlen to ignore trailing NULL
+		}
 
-		file_size += (sizeof(char) * strlen(buffer)); // compute file size, use strlen to ignore trailing NULL
+		cnt++; // increment counter to fill the next BUFFER_SIZE bytes
 	}
 
-	file_buffer[255*cnt] = '\0'; // ensure buffer is ended with NULL
+	file_buffer[file_size] = '\0'; // ensure buffer is ended with NULL
 }
 
 void write_file()

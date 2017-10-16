@@ -9,8 +9,18 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "packet.h"
-#include "ack.h"
+#include "Packet.h"
+#include "Ack.h"
+
+/* Constants */
+
+#define BUFFER_SIZE 256
+
+#define OPEN_ERR "open"
+#define HOST_ERR "host"
+#define FILE_OPEN_ERR "file_open"
+#define FILE_READ_ERR "file_read"
+
 /* Global variables */
 
 int socket_fd; // socket file descriptor
@@ -18,21 +28,12 @@ int port_num; // port number
 
 struct sockaddr_in server_addr; // server socket address
 struct hostent *server; // host information
-char buffer[256]; // buffer
+char buffer[BUFFER_SIZE]; // buffer
 
 char* file_buffer; // buffer for read file
 long file_size; // file size in bytes
 
 int _send;
-
-
-/* Constants */
-
-const char* open_err = "open";
-const char* host_err = "host";
-const char* file_open_err = "file_open";
-const char* file_read_err = "file_read";
-const char* file_write_err = "file_write";
 
 
 /* Subprograms */
@@ -44,7 +45,6 @@ void error(const char* type)
 	else if(strcmp(type, "host") == 0) perror("Socket host error");
 	else if(strcmp(type, "file_open") == 0) perror("File open error");
 	else if(strcmp(type, "file_read") == 0) perror("File read error");
-	else if(strcmp(type, "file_write") == 0) perror("File write error");
 
 	exit(1);
 }
@@ -54,7 +54,7 @@ void setup()
 	// Open socket
 	socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	
-	if(socket_fd < 0) error(open_err);
+	if(socket_fd < 0) error(OPEN_ERR);
 
 	// Set server address
 	bzero((char *) &server_addr, sizeof(server_addr));
@@ -70,7 +70,7 @@ void read_file()
 
 	file = fopen(filename,"rb"); // open in binary mode
 
-	if(file == NULL) error(file_open_err);
+	if(file == NULL) error(FILE_OPEN_ERR);
 	else
 	{
 		fseek(file, 0, SEEK_END);
@@ -80,7 +80,7 @@ void read_file()
 		file_buffer = (char*) malloc(sizeof(char) * file_size); // allocate buffer for file
 
 		size_t read_size = fread(file_buffer, 1, file_size, file); // read file
-		if(read_size != file_size) error(file_read_err); // check if read file size equal to file size
+		if(read_size != file_size) error(FILE_READ_ERR); // check if read file size equal to file size
 		
 		fclose(file);
 	}
@@ -88,17 +88,19 @@ void read_file()
 
 void send_data()
 {
-	int count = (int) ceil((double)file_size / 255); // count how many times we need to send file
-	int last = (int) file_size % 255; // the last buffer may not have size of 255, compute to prevent double free or corruption
+	int count = (int) ceil((double)file_size / BUFFER_SIZE); // count how many times we need to send file
+	int last = (int) file_size % BUFFER_SIZE; // the last buffer may not have size of BUFFER_SIZE, compute to prevent double free or corruption
+
+	if(last == 0 && file_size != 0) last = BUFFER_SIZE; // handle if last buffer is 256 bytes
 
 	for(int i=0;i<count;i++)
 	{
-		bzero(buffer,256); // initialize all with zero
+		bzero(buffer, BUFFER_SIZE); // initialize all with zero
 		
-		if(i != count-1) bcopy(file_buffer+(255*i), buffer, 255 * sizeof(char)); // if not last buffer, copy 255 bytes
-		else bcopy(file_buffer+(255*i), buffer, last * sizeof(char)); // else copy the remaining only
-		
-		_send = sendto(socket_fd, buffer, 256, 0, (struct sockaddr* ) &server_addr, sizeof(server_addr)); // send data
+		if(i != count-1) bcopy(file_buffer+(BUFFER_SIZE * i), buffer, BUFFER_SIZE * sizeof(char)); // if not last buffer, copy BUFFER_SIZE bytes
+		else bcopy(file_buffer+(BUFFER_SIZE * i), buffer, last * sizeof(char)); // else copy the remaining only
+
+		_send = sendto(socket_fd, buffer, BUFFER_SIZE, 0, (struct sockaddr* ) &server_addr, sizeof(server_addr)); // send data
 	}
 	
 	free(file_buffer); // free buffer
@@ -113,7 +115,7 @@ int main(int argc, char *argv[])
 	port_num = atoi(argv[2]); // convert port number to integer
 	server = gethostbyname(argv[1]); // get host from name
 
-	if(server == NULL) error(host_err);
+	if(server == NULL) error(HOST_ERR);
 
 	setup();
 	read_file();
