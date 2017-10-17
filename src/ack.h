@@ -10,3 +10,4 @@ typedef struct {
 } __attribute__((packed)) Ack;
 
 Ack makeAck(uint32_t nextSeqNum, uint8_t advWindowSize);
+bool verifyAckChecksum(Ack ack);
