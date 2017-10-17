@@ -1,6 +1,5 @@
 1. Petunjuk Pengerjaan Program
-- Buka folder TubesJarkom1 pada terminal
-- Ketik "make" untuk menjalankan program
+- Jalankan executable yang terdapat pada folder.
 
 2. Cara Kerja Sliding Window
 Sliding window pada implementasi ini adalah dengan cara membuat window yang sesuai dengan ukuran yang didefinisikan pada input dari keyboard. Kemudian menggunakan thread agar beberapa paket dapat dikirimkan pada saat yang bersamaan. Jika ada paket yang belum diterima ACKnya pada satu window maka akan di-lock agar dapat menunggu sampai ACK diterima baru dilanjutkan lagi. Ukuran sliding window dapat "mengecil" jika buffer yang hendak digunakan belum direlease.
