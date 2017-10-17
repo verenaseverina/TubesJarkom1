@@ -1,18 +1,70 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "ack.h"
 
-Ack makeAck(uint32_t nextSeqNum, uint8_t advWindowSize){
-	//create ack	
-	Ack ack;
-	ack.next_seqnum = nextSeqNum;
-	ack.adv_windsize = advWindowSize;
-	
-	//count checksum
-	ack.checksum = ((uint8_t)ack.ACK + (uint8_t)ack.next_seqnum + ack.adv_windsize)%256;
-	return ack;
+/* Checksum */
+
+uint8_t computeChecksum(uint32_t nextSeqNum, uint8_t advWindowSize)
+{
+	return ((uint8_t)0x6 + (uint8_t)nextSeqNum + (uint8_t)advWindowSize);
 }
 
-bool verifyAckChecksum(Ack ack)
+
+/* Create ACK */
+
+void makeAck(Ack &ack, uint32_t nextSeqNum, uint8_t advWindowSize)
 {
-	uint8_t expected = ((uint8_t)ack.ACK + (uint8_t)ack.next_seqnum + ack.adv_windsize)%256;
+	ack.next_seqnum = nextSeqNum;
+	ack.adv_windsize = advWindowSize;
+	ack.checksum = computeChecksum(nextSeqNum, advWindowSize);
+}
+
+void makeFileSizeAck(Ack &ack, uint32_t size)
+{
+	ack.next_seqnum = 0xFF000000 + size;
+	ack.adv_windsize = 0xFF;
+	ack.checksum = computeChecksum(ack.next_seqnum, ack.adv_windsize);
+}
+
+void makeStartFileAck(Ack &ack)
+{
+	ack.next_seqnum = 0xFF000000;
+	ack.adv_windsize = 0xFF;
+	ack.checksum = computeChecksum(ack.next_seqnum, ack.adv_windsize);
+}
+
+void makeEndFileAck(Ack &ack)
+{
+	ack.next_seqnum = 0xFFFFFFFF;
+	ack.adv_windsize = 0xFF;
+	ack.checksum = computeChecksum(ack.next_seqnum, ack.adv_windsize);
+}
+
+
+/* Verify ACK */
+
+bool verifyAck(Ack &ack)
+{
+	uint8_t expected = computeChecksum(ack.next_seqnum, ack.adv_windsize);
 	return (ack.checksum == expected);
+}
+
+bool verifyFileSizeAck(Ack &ack)
+{
+	uint8_t expected = computeChecksum(ack.next_seqnum, ack.adv_windsize);
+	return (ack.adv_windsize == 0xFF && ack.checksum == expected);
+}
+
+bool verifyStartFileAck(Ack &ack)
+{
+	uint8_t expected = computeChecksum(ack.next_seqnum, ack.adv_windsize);
+	return (ack.next_seqnum == 0xFF000000 && ack.adv_windsize == 0xFF && ack.checksum == expected);
+}
+
+bool verifyEndFileAck(Ack &ack)
+{
+	uint8_t expected = computeChecksum(ack.next_seqnum, ack.adv_windsize);
+	return (ack.next_seqnum == 0xFFFFFFFF && ack.adv_windsize == 0xFF && ack.checksum == expected);
 }
