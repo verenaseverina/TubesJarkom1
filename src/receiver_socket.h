@@ -6,5 +6,5 @@
 #include <sys/socket.h>
 
 void open_receiver(int &socket);
-void setup_receiver(struct sockaddr_in &server_addr, int port_num);
-void bind_socket(int socket, struct sockaddr* &server_addr);
+void setup_receiver(struct sockaddr_in &server_addr, unsigned int port_num);
+void bind_socket(int socket, struct sockaddr_in &server_addr);

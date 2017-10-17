@@ -19,7 +19,7 @@
 
 /* Global variables */
 
-int socket_fd; // socket file descriptor, 
+int socket_fd; // socket file descriptor
 int port_num; // port number
 
 struct sockaddr_in server_addr, client_addr; // server and client socket address
