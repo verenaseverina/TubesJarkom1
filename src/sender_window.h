@@ -19,6 +19,9 @@ typedef struct {
 	uint32_t current_size;
 } senderWindow;
 
-senderWindow makeWindow(uint32_t maxSize);
-void putPacketToBuffer(int sockfd);
-void sendPacket(uint32_t seqnum, int sockfd, struct sockaddr_in server_addr, char data);
+senderWindow senderMakeWindow(uint32_t maxSize);
+void senderGrowWindow(senderWindow &window, int delta);
+void senderShrinkWindow(senderWindow &window, int delta);
+void senderIncrementWindow(senderWindow &window, int delta);
+void senderReceiveACK(int sockfd, senderWindow &window, struct sockaddr_in server_addr);
+void senderSendPacket(uint32_t seqnum, int sockfd, struct sockaddr_in server_addr, char data);
