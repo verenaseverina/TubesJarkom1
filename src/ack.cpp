@@ -10,3 +10,9 @@ Ack makeAck(uint32_t nextSeqNum, uint8_t advWindowSize){
 	ack.checksum = ((uint8_t)ack.ACK + (uint8_t)ack.next_seqnum + ack.adv_windsize)%256;
 	return ack;
 }
+
+bool verifyAckChecksum(Ack ack)
+{
+	uint8_t expected = ((uint8_t)ack.ACK + (uint8_t)ack.next_seqnum + ack.adv_windsize)%256;
+	return (ack.checksum == expected);
+}

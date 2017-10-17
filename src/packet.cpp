@@ -11,3 +11,8 @@ Packet makePacket(uint32_t sequenceNumber, char dataPayload){
 	return p;
 }
 
+bool verifyPacketChecksum(Packet p)
+{
+	uint8_t expected = ((uint8_t)p.SOH + (uint8_t)p.seqnum + (uint8_t)p.STX + (uint8_t)p.data + (uint8_t)p.ETX)%256;
+	return (ack.checksum == expected);
+}

@@ -13,3 +13,4 @@ typedef struct {
 
 //Packet constructor
 Packet makePacket(uint32_t sequenceNumber, char dataPayload);
+bool verifyPacketChecksum(Packet p);
