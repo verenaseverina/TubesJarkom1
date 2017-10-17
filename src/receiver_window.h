@@ -23,5 +23,5 @@ void makeWindow(recvWindow &window, uint32_t maxSize);
 void growWindow(recvWindow &window, int delta);
 void shrinkWindow(recvWindow &window, int delta);
 void incrementWindow(recvWindow &window, int delta);
-void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client_addr);
+void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client_addr, char *&fileBuffer);
 void sendACK(uint32_t frameNumber, int sockfd, struct sockaddr_in client_addr);
