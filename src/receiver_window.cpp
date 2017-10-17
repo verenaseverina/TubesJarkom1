@@ -1,6 +1,6 @@
 #include "receiver_window.h"
 
-recvWindow makeWindow(int maxSize){
+recvWindow makeWindow(uint32_t maxSize){
 	recvWindow window;
 	window.max_size = maxSize;
 	window.current_size = 0;
@@ -23,11 +23,20 @@ void shrinkWindow(recvWindow &window){
 }
 
 void incrementWindow(recvWindow &window){
-	if(window.LAF < MAX_FRAME_NUMBER){
+	if(window.LAF < MAX_BUFFER_NUMBER){
 		growWindow(window);
 	}
 	
-	if((window.LFR < MAX_FRAME_NUMBER)&&(window.LAF >= window.max_size)){
+	if((window.LFR < MAX_BUFFER_NUMBER)&&(window.LAF >= window.max_size)){
 		shrinkWindow(window);
 	}
+}
+
+void putPacketToBuffer(int sockfd){
+	
+}
+
+void sendACK(uint32_t bufferNumber, int sockfd, uint8_t advWinSize){
+	Ack ack = makeAck(bufferNumber+1, advWinSize);
+	sendto(sockfd, ack, 9, 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 }
