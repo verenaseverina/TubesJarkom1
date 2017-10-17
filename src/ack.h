@@ -10,7 +10,7 @@ typedef struct {
     uint8_t checksum; // checksum
 } __attribute__((packed)) Ack;
 
-uint8_t computeChecksum(uint32_t nextSeqNum, uint8_t advWindowSize);
+uint8_t computeAckChecksum(uint32_t nextSeqNum, uint8_t advWindowSize);
 
 void makeAck(Ack &ack, uint32_t nextSeqNum, uint8_t advWindowSize);
 void makeFileSizeAck(Ack &ack, uint32_t size);
