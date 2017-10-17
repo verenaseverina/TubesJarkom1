@@ -1,18 +1,74 @@
 #include "packet.h"
 
-Packet makePacket(uint32_t sequenceNumber, char dataPayload){
-	//create packet	
-	Packet p;
-	p.seqnum = sequenceNumber;
-	p.data = dataPayload;
+/* Checksum */
 
-	//count checksum
-	p.checksum = ((uint8_t)p.SOH + (uint8_t)p.seqnum + (uint8_t)p.STX + (uint8_t)p.data + (uint8_t)p.ETX)%256;
-	return p;
+uint8_t computePacketChecksum(uint32_t seqnum, char data)
+{
+	return ((uint8_t)0x1 + (uint8_t)seqnum + (uint8_t)0x2 + (uint8_t)data + (uint8_t)0x3);
 }
 
-bool verifyPacketChecksum(Packet p)
+
+/* Extractor */
+
+uint32_t getFileSize(Packet p)
 {
-	uint8_t expected = ((uint8_t)p.SOH + (uint8_t)p.seqnum + (uint8_t)p.STX + (uint8_t)p.data + (uint8_t)p.ETX)%256;
-	return (ack.checksum == expected);
+	return p.seqnum - 0xFF000000;
+}
+
+
+/* Create Packet*/
+
+void makePacket(Packet &p, uint32_t sequenceNumber, char data)
+{
+	p.seqnum = sequenceNumber;
+	p.data = data;
+	p.checksum = computePacketChecksum(sequenceNumber, data);
+}
+
+void makeFileSizePacket(Packet &p, uint32_t size)
+{
+	p.seqnum = 0xFF000000 + size;
+	p.data = (char) 0xFF;
+	p.checksum = computePacketChecksum(p.seqnum, p.data);
+}
+
+void makeStartFilePacket(Packet &p)
+{
+	p.seqnum = 0xFF000000;
+	p.data = (char) 0xFF;
+	p.checksum = computePacketChecksum(p.seqnum, p.data);
+}
+
+void makeEndFilePacket(Packet &p)
+{
+	p.seqnum = 0xFFFFFFFF;
+	p.data = (char) 0xFF;
+	p.checksum = computePacketChecksum(p.seqnum, p.data);
+}
+
+
+/* Verify Packet */
+
+bool verifyPacket(Packet &p)
+{
+	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
+	return (p.checksum == expected);
+}
+
+bool verifyFileSizePacket(Packet &p, uint32_t size)
+{
+	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
+	return (p.seqnum == 0xFF000000 + size && p.data == (char) 0xFF && p.checksum == expected);
+}
+
+bool verifyStartFilePacket(Packet &p)
+{
+	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
+	return (p.seqnum == 0xFF000000 && p.data == (char) 0xFF && p.checksum == expected);
+}
+
+bool verifyEndFile(Packet &p)
+{
+	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
+	return (p.seqnum == 0xFFFFFFFF && p.data == (char) 0xFF && p.checksum == expected);
 }

@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "ack.h"
 
 /* Checksum */
@@ -51,10 +47,10 @@ bool verifyAck(Ack &ack)
 	return (ack.checksum == expected);
 }
 
-bool verifyFileSizeAck(Ack &ack)
+bool verifyFileSizeAck(Ack &ack, uint32_t size)
 {
 	uint8_t expected = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
-	return (ack.adv_windsize == 0xFF && ack.checksum == expected);
+	return (ack.next_seqnum == 0xFF000000 + size && ack.adv_windsize == 0xFF && ack.checksum == expected);
 }
 
 bool verifyStartFileAck(Ack &ack)

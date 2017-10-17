@@ -11,6 +11,15 @@ typedef struct {
     uint8_t checksum; // checksum
 } __attribute__((packed)) Packet;
 
-//Packet constructor
-Packet makePacket(uint32_t sequenceNumber, char dataPayload);
-bool verifyPacketChecksum(Packet p);
+uint8_t computePacketChecksum(uint32_t seqnum, char data);
+uint32_t getFileSize(Packet &p);
+
+void makePacket(Packet &p, uint32_t sequenceNumber, char data);
+void makeFileSizePacket(Packet &p, uint32_t size);
+void makeStartFilePacket(Packet &p);
+void makeEndFilePacket(Packet &p);
+
+bool verifyPacket(Packet &p);
+bool verifyFileSizePacket(Packet &p, uint32_t size);
+bool verifyStartFilePacket(Packet &p);
+bool verifyEndFile(Packet &p);
