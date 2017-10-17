@@ -32,8 +32,15 @@ void incrementWindow(recvWindow &window){
 	}
 }
 
-void putPacketToBuffer(int sockfd){
-	
+void putPacketToBuffer(int sockfd, recvWindow &window){
+	char dataBuffer;
+	bool confirmed[window.current_size];
+	for(int i=0;i<window.current_size;i++){
+		confirmed[i] = false;
+	}
+	while(true){
+		//recvfrom(sockfd,)
+	}
 }
 
 void sendACK(uint32_t bufferNumber, int sockfd, uint8_t advWinSize){
