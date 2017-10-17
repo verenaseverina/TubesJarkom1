@@ -20,7 +20,7 @@ void setup_receiver(struct sockaddr_in &server_addr, unsigned int port_num)
 {
     bzero((char *) &server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY;
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(port_num);
 }
 

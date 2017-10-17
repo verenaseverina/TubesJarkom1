@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 #include "sender_socket.h"
 
@@ -56,5 +57,17 @@ int main(int argc, char** argv)
 	open_sender(socket_fd);
 	setup_sender(server_addr, dest_ip, dest_port);
 
+	/*
+	char buffer[256];
+
+	printf("Enter your message : ");
+	bzero(buffer, 256);
+	fgets(buffer, 255, stdin);
+
+	printf("%s\n",buffer);
+
+	int _send = sendto(socket_fd, buffer, 256, 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	*/
+	
 	return 0;
 }

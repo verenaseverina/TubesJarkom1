@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <strings.h>
 
 #include "receiver_window.h"
 #include "receiver_socket.h"
@@ -49,7 +50,17 @@ int main(int argc, char** argv)
 	open_receiver(socket_fd);
 	setup_receiver(server_addr, port);
 	bind_socket(socket_fd, server_addr);
+	
+	/*
+	char buffer[256];
 
+	client_len = sizeof(client_addr);
+	bzero(buffer,256);
+	int _recv = recvfrom(socket_fd, buffer, 256, 0, (struct sockaddr* ) &client_addr, &client_len);
+
+	printf("%s\n",buffer);
+	*/
+	
 	recvWindow window = makeWindow(win_size);
 
 	return 0;
