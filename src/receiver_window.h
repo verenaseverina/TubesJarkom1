@@ -19,12 +19,10 @@ typedef struct {
 	uint32_t current_size;
 } recvWindow;
 
-struct sockaddr_in server_addr;
-
 recvWindow makeWindow(uint32_t maxSize);
 void growWindow(recvWindow &window);
 void shrinkWindow(recvWindow &window);
 void incrementWindow(recvWindow &window);
 void putPacketToBuffer(int sockfd);
-void sendACK(uint32_t frameNumber, int sockfd);
+void sendACK(uint32_t frameNumber, int sockfd, struct sockaddr_in server_addr);
 

@@ -39,11 +39,11 @@ void putPacketToBuffer(int sockfd, recvWindow &window){
 		confirmed[i] = false;
 	}
 	while(true){
-		//recvfrom(sockfd,)
+		recvfrom(sockfd,)
 	}
 }
 
-void sendACK(uint32_t bufferNumber, int sockfd, uint8_t advWinSize){
+void sendACK(uint32_t bufferNumber, int sockfd, uint8_t advWinSize, struct sockaddr_in server_addr){
 	Ack ack = makeAck(bufferNumber+1, advWinSize);
-	sendto(sockfd, ack, 9, 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	sendto(sockfd, ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 }
