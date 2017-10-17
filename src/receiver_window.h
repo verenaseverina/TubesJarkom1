@@ -19,8 +19,6 @@ typedef struct {
 	uint32_t current_size;
 } recvWindow;
 
-char receiverBuffer[256];
-
 void makeWindow(recvWindow &window, uint32_t maxSize);
 void growWindow(recvWindow &window);
 void shrinkWindow(recvWindow &window);

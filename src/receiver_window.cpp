@@ -1,5 +1,7 @@
 #include "receiver_window.h"
 
+char receiverBuffer[256];
+
 void makeWindow(recvWindow &window, uint32_t maxSize){
 	window.max_size = maxSize;
 	window.current_size = 0;
@@ -7,42 +9,53 @@ void makeWindow(recvWindow &window, uint32_t maxSize){
 	window.LFR = 0; 
 }
 
-void growWindow(recvWindow &window){
+void growWindow(recvWindow &window, int delta){
 	if(window.current_size < window.max_size){
-		window.current_size++;
-		window.LAF++;	
+		window.current_size += delta;
+		window.LAF += delta;	
 	}
 }
 
-void shrinkWindow(recvWindow &window){
+void shrinkWindow(recvWindow &window, int delta){
 	if(window.current_size > 0){
-		window.current_size--;
-		window.LFR++;	
+		window.current_size -= delta;
+		window.LFR += delta;	
 	}
 }
 
-void incrementWindow(recvWindow &window){
+void incrementWindow(recvWindow &window, int delta){
 	if(window.LAF < MAX_BUFFER_NUMBER){
-		growWindow(window);
+		growWindow(window,delta);
 	}
 	
 	if((window.LFR < MAX_BUFFER_NUMBER)&&(window.LAF-window.LFR >= window.max_size)){
-		shrinkWindow(window);
+		shrinkWindow(window,delta);
 	}
 }
 
-void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client_addr){
+void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client_addr, char *&fileBuffer){
 	char dataBuffer;
-	Packet * packet;
-	bool confirmed[window.current_size];
-	for(int i=0;i<window.current_size;i++){
-		confirmed[i] = false;
-	}
-	while(true){
-		recvfrom(sockfd, packet, 9, 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
-		//itung checksum		
+	Packet * _packet;
 
-		dataBuffer = packet[6];
+	int lastIndex;//penunjuk ke index terbesar di receiver buffer
+	while(true){
+		recvfrom(sockfd, _packet, 9, 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+		
+		Packet packet = *_packet;				
+		if(verifyPacket(packet)){ //cek paket
+			dataBuffer = packet.data; //ambil data dari paket
+			if(lastIndex == 0){//cek kalau ada yang data yang belum diterima
+				fileBuffer[packet.seqnum-1] = dataBuffer;
+			}else{
+				counter++;//hitung yang error +1
+				lastIndex =  = packet.seqnum - window.LFR - 1;				
+				receiverBuffer[lastIndex] = dataBuffer;//masukin ke receiver buffer
+				
+			}
+			
+		}
+		
+		
 			
 	}
 }
