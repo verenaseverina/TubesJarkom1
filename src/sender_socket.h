@@ -6,4 +6,4 @@
 #include <sys/socket.h>
 
 void open_sender(int &socket);
-void setup_sender(struct sockaddr_in &server_addr, struct hostent* &server, int port_num);
+void setup_sender(struct sockaddr_in &server_addr, unsigned long ip, unsigned int port_num);

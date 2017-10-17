@@ -16,10 +16,10 @@ void open_sender(int &socket_fd)
 	}
 }
 
-void setup_sender(struct sockaddr_in &server_addr, struct hostent* &server, int port_num)
+void setup_sender(struct sockaddr_in &server_addr, unsigned long ip, unsigned int port_num)
 {
 	bzero((char *) &server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	bcopy((char *) server->h_addr, (char *) &server_addr.sin_addr.s_addr, server->h_length);
+	server_addr.sin_addr.s_addr = htonl(ip);
 	server_addr.sin_port = htons(port_num);
 }

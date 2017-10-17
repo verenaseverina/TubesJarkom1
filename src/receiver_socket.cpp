@@ -16,17 +16,17 @@ void open_receiver(int &socket_fd)
     }
 }
 
-void setup_receiver(struct sockaddr_in &server_addr, int port_num)
+void setup_receiver(struct sockaddr_in &server_addr, unsigned int port_num)
 {
     bzero((char *) &server_addr, sizeof(server_addr));
 	server_addr.sin_family = AF_INET;
-	server_addr.sin_addr.s_addr = INADDR_ANY;
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_addr.sin_port = htons(port_num);
 }
 
-void bind_socket(int socket, struct sockaddr* &server_addr)
+void bind_socket(int socket_fd, struct sockaddr_in &server_addr)
 {
-    int _bind = bind(socket,(struct sockaddr*) &server_addr, sizeof(server_addr));
+    int _bind = bind(socket_fd,(struct sockaddr*) &server_addr, sizeof(server_addr));
     
     if( _bind < 0)
     {
