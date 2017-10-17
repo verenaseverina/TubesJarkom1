@@ -64,6 +64,7 @@ void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client
 
 void sendACK(uint32_t bufferNumber, int sockfd, uint8_t advWinSize, struct sockaddr_in client_addr){
 	Ack ack;
+	// belum dihandle buat yang ack kalau masih ada paket yang ilang : kirim nomor diri sendiri
 	makeAck(ack, bufferNumber+1, advWinSize);
 	Ack * _ack = &ack;
 	sendto(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
