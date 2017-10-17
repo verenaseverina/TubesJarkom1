@@ -24,7 +24,7 @@ void open_file(const char* &filename, FILE* &file, const char* mode)
     }
 }
 
-void read_file(const char* filename, int &file_size, char* &file_buffer)
+void read_file(const char* filename, long &file_size, char* &file_buffer)
 {
 	FILE* file;
 	open_file(filename, file, "rb");
@@ -43,7 +43,7 @@ void read_file(const char* filename, int &file_size, char* &file_buffer)
 	fclose(file);
 }
 
-void write_file(const char* filename, int &file_size, char* &file_buffer)
+void write_file(const char* filename, long &file_size, char* &file_buffer)
 {
 	FILE* file;
 	open_file(filename, file, "wb"); // open in binary mode
@@ -51,6 +51,4 @@ void write_file(const char* filename, int &file_size, char* &file_buffer)
 	fwrite(file_buffer, 1, file_size, file); // write file
 	fclose(file);
 	free(file_buffer); // free buffer
-
-	printf("File received.\n"); // notify user
 }

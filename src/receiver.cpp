@@ -4,6 +4,7 @@
 
 #include "receiver_window.h"
 #include "receiver_socket.h"
+#include "file.h"
 
 /* Global variables */
 
@@ -14,7 +15,10 @@ unsigned int port;
 
 int socket_fd; // socket file descriptor
 struct sockaddr_in server_addr, client_addr; // server and client socket address
-socklen_t client_len; // client server length
+socklen_t client_len; // client length
+
+recvWindow window; // receiver window
+char* file_buffer; // file buffer
 
 /* Program */
 
@@ -41,6 +45,42 @@ void validate(int count, char** &arg)
 	if(!(port_valid && port<=65535)) { printf("Invalid destination port.\n"); exit(1); }
 
 	sscanf(arg[1],"%s",filename);
+	if(win_size >= 256) win_size = 256;
+}
+
+void recv_data()
+{
+	FILE* file;
+	long size;
+
+	client_len = sizeof(client_addr);
+	receiverMakeWindow(window, win_size);
+
+	Packet packet;
+	Packet * _packet;
+	Ack ack;
+	Ack* _ack;
+
+	recvfrom(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
+	packet = *_packet;
+
+	if(verifyFileSizePacket(packet))
+	{
+		size = getFileSize(packet);
+		file_buffer = (char*) malloc(sizeof(char) * size);
+		
+		makeFileSizeAck(ack, size);
+		*_ack = ack;
+		sendto(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, &client_len));
+	}
+	
+	while(true)
+	{
+		// receive until seqnum = packet size
+	}
+
+	write_file(filename, size, file_bufer);
+	printf("File received.\n");
 }
 
 int main(int argc, char** argv)
@@ -51,17 +91,7 @@ int main(int argc, char** argv)
 	setup_receiver(server_addr, port);
 	bind_socket(socket_fd, server_addr);
 	
-	/*
-	char buffer[256];
-
-	client_len = sizeof(client_addr);
-	bzero(buffer,256);
-	int _recv = recvfrom(socket_fd, buffer, 256, 0, (struct sockaddr* ) &client_addr, &client_len);
-
-	printf("%s\n",buffer);
-	*/
-	
-	recvWindow window = makeWindow(win_size);
+	recv_data();
 
 	return 0;
 }
