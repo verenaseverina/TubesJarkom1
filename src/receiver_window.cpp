@@ -36,13 +36,14 @@ void incrementWindow(recvWindow &window, int delta){
 void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client_addr, char *&fileBuffer){
 	char dataBuffer;
 	Packet * _packet;
+	Packet packet;
 
 	int lastIndex;//penunjuk ke index terbesar di receiver buffer
 	uint8_t advWinSize = window.current_size;
 	while(true){
 		recvfrom(sockfd, _packet, 9, 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
-		
-		Packet packet = *_packet;				
+		packet = *_packet;
+						
 		if(verifyPacket(packet)){ //cek paket
 			dataBuffer = packet.data; //ambil data dari paket
 			if(lastIndex == 0){//cek kalau ada yang data yang belum diterima
@@ -52,6 +53,7 @@ void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client
 			}else{
 				lastIndex = packet.seqnum - window.LFR - 1;				
 				receiverBuffer[lastIndex] = dataBuffer;//masukin ke receiver buffer
+				//kirim ack nomor paket yang ilang(?)
 				
 			}
 			
