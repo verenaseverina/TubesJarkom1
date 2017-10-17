@@ -41,7 +41,7 @@ void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client
 	int lastIndex;//penunjuk ke index terbesar di receiver buffer
 	uint8_t advWinSize = window.current_size;
 	while(true){
-		recvfrom(sockfd, _packet, 9, 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+		recvfrom(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 		packet = *_packet;
 						
 		if(verifyPacket(packet)){ //cek paket
