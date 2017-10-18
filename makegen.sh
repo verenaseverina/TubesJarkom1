@@ -75,7 +75,7 @@ then
 	
 	printf "sendfile: $obj_folder/sender.o $object_files\n" >> Makefile
 	printf "	@echo \"Linking sendfile ...\"\n" >> Makefile
-	printf "	@g++ $obj_folder/sender.o $object_files -o sendfile -g -pthread\n\n" >> Makefile
+	printf "	@g++ $obj_folder/sender.o $object_files -o sendfile -g\n\n" >> Makefile
 
 	printf "recvfile: $obj_folder/receiver.o $object_files\n" >> Makefile
 	printf "	@echo \"Linking recvfile ...\"\n" >> Makefile

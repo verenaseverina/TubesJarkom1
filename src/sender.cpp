@@ -3,8 +3,6 @@
 #include <string.h>
 #include <strings.h>
 
-#include <pthread.h>
-
 #include "sender_window.h"
 #include "sender_socket.h"
 #include "file.h"
@@ -79,60 +77,18 @@ void* sendPacket()
 	makeFileSizePacket(packet, size);
 	*_packet = packet;
 	sendto(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-
-	pthread_mutex_lock(&mutex);
-	pthread_cond_wait(&file_size_ack);
-	pthread_mutex_unlock(&mutex);
+	
 
 	makeStartFilePacket(packet);
 	*_packet = packet;
 	sendto(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 
-	pthread_mutex_lock(&mutex);
-	pthread_cond_wait(&start_file_ack);
-	pthread_mutex_unlock(&mutex);
-
-	while(true)
-	{
-		if(window.recv_adv_windsize != 0) // if adv wind size of receiver is not zero
-		{
-			if(window.current_size != window.max_size)
-			{
-				if(window.LFS <= size) // if seqnum <= size
-				{
-					sendSendPacket(window, sockfd, server_addr, window.LFS, file_buffer[window.LFS - 1]);
-				}
-				else // all data sent, wait for ack
-				{
-					pthread_mutex_lock(&mutex);
-					pthread_cond_wait(&packet_ack);
-					pthread_mutex_unlock(&mutex);
-				}
-			}
-			else // wait for ack
-			{
-				// paket ilang (?)
-
-				pthread_mutex_lock(&mutex);
-				pthread_cond_wait(&packet_ack);
-				pthread_mutex_unlock(&mutex);	
-			}
-		}
-		else // wait until timeout
-		{
-			pthread_mutex_lock(&mutex);
-			pthread_cond_wait(&packet_ack);
-			pthread_mutex_unlock(&mutex);
-		}
-	}
+	
 
 	makeEndFilePacket(packet);
 	*_packet = packet;
 	sendto(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 
-	pthread_mutex_lock(&mutex);
-	pthread_cond_wait(&end_file_ack);
-	pthread_mutex_unlock(&mutex);
 }
 
 void* receiveACK()
@@ -145,9 +101,6 @@ void* receiveACK()
 
 	if(verifyFileSizeAck(ack))
 	{
-		pthread_mutex_lock(&mutex);
-		pthread_cond_signal(&file_size_ack);
-		pthread_mutex_unlock(&mutex);
 	}
 
 	recvfrom(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
@@ -155,9 +108,6 @@ void* receiveACK()
 
 	if(verifyStartFileAck(ack))
 	{
-		pthread_mutex_lock(&mutex);
-		pthread_cond_wait(&start_file_ack);
-		pthread_mutex_unlock(&mutex);
 	}
 
 	recvfrom(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
@@ -165,9 +115,6 @@ void* receiveACK()
 
 	if(verifyEndFileAck(ack))
 	{
-		pthread_mutex_lock(&mutex);
-		pthread_cond_wait(&end_file_ack);
-		pthread_mutex_unlock(&mutex);
 	}
 }
 
@@ -178,34 +125,7 @@ void* timer()
 
 void send_data()
 {
-	//pthread_t thread[3];
-	pthread_t thread[2];
 	senderMakeWindow(window, win_size);
-
-	// initialize all condition variables and mutex
-	pthread_mutex_init(&mutex, NULL);
-	pthread_cond_init (&packet_ack, NULL);
-	pthread_cond_init (&file_size_ack, NULL);
-	pthread_cond_init (&start_file_ack, NULL);
-	pthread_cond_init (&end_file_ack, NULL);
-
-	// create 3 threads
-	int _thread1 = pthread_create(&thread[0], NULL, sendPacket, NULL); // to send
-	int _thread2 = pthread_create(&thread[1], NULL, receiveACK, NULL); // to receive
-	int _thread3 = pthread_create(&thread[2], NULL, timer, NULL); // timeout
-
-	// wait for all threads to complete
-	int retval;
-	pthread_join(&_thread1, (void**) &retval);
-	pthread_join(&_thread2, (void**) &retval);
-	pthread_join(&_thread3, (void**) &retval);
-
-	// clean up
-	pthread_mutex_destroy(&mutex);
-	pthread_cond_destroy(&packet_ack);
-	pthread_cond_destroy(&file_size_ack);
-	pthread_cond_destroy(&start_file_ack);
-	pthread_cond_destroy(&end_file_ack);
 
 	free(file_buffer);
 
