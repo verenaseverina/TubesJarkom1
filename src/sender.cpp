@@ -83,11 +83,6 @@ void send_data()
 	// Receive start file ACK
 	recvfrom(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 	if(!verifyStartFileAck(ack)) exit(1);
-	else
-	{
-		printf("ok\n");
-		exit(0);
-	}
 
 	// Send file
 

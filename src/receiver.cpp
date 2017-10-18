@@ -62,6 +62,7 @@ void recv_data()
 
 	if(verifyFileSizePacket(packet, size))
 	{
+		file_buffer = (char*) malloc(sizeof(char) * size);
 		makeFileSizeAck(ack, size);
 		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
@@ -75,7 +76,7 @@ void recv_data()
 		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
 
-	while(window.LFR <= size)
+	while(window.LFR < size)
 	{
 		receiverReceivePacket(window, sock_fd, client_addr, client_len, file_buffer);
 	}
