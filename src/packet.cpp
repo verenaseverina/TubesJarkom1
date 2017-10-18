@@ -40,6 +40,9 @@ void makePacket(Packet &p, Packet* &_p)
 
 void makeFileSizePacket(Packet &p, uint32_t size)
 {
+	p.SOH = 0x1;
+	p.STX = 0x2;
+	p.ETX = 0x3;
 	p.seqnum = 0xFF000000 + size;
 	p.data = (char) 0xFF;
 	p.checksum = computePacketChecksum(p.seqnum, p.data);
@@ -47,6 +50,9 @@ void makeFileSizePacket(Packet &p, uint32_t size)
 
 void makeStartFilePacket(Packet &p)
 {
+	p.SOH = 0x1;
+	p.STX = 0x2;
+	p.ETX = 0x3;
 	p.seqnum = 0xFF000000;
 	p.data = (char) 0xFF;
 	p.checksum = computePacketChecksum(p.seqnum, p.data);
@@ -54,6 +60,9 @@ void makeStartFilePacket(Packet &p)
 
 void makeEndFilePacket(Packet &p)
 {
+	p.SOH = 0x1;
+	p.STX = 0x2;
+	p.ETX = 0x3;
 	p.seqnum = 0xFFFFFFFF;
 	p.data = (char) 0xFF;
 	p.checksum = computePacketChecksum(p.seqnum, p.data);

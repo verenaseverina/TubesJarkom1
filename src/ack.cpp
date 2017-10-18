@@ -18,16 +18,9 @@ void makeAck(Ack &ack, uint32_t nextSeqNum, uint8_t advWindowSize)
 	ack.checksum = computeAckChecksum(nextSeqNum, advWindowSize);
 }
 
-void makeAck(Ack &ack, Ack* &_ack)
-{
-	ack.ACK = _ack->ACK;
-	ack.next_seqnum = _ack->next_seqnum;
-	ack.adv_windsize = _ack->adv_windsize;
-	ack.checksum = _ack->checksum;
-}
-
 void makeFileSizeAck(Ack &ack, uint32_t size)
 {
+	ack.ACK = 0x6;
 	ack.next_seqnum = 0xFF000000 + size;
 	ack.adv_windsize = 0xFF;
 	ack.checksum = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
@@ -35,6 +28,7 @@ void makeFileSizeAck(Ack &ack, uint32_t size)
 
 void makeStartFileAck(Ack &ack)
 {
+	ack.ACK = 0x6;
 	ack.next_seqnum = 0xFF000000;
 	ack.adv_windsize = 0xFF;
 	ack.checksum = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
@@ -42,6 +36,7 @@ void makeStartFileAck(Ack &ack)
 
 void makeEndFileAck(Ack &ack)
 {
+	ack.ACK = 0x6;
 	ack.next_seqnum = 0xFFFFFFFF;
 	ack.adv_windsize = 0xFF;
 	ack.checksum = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);

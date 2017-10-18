@@ -13,7 +13,6 @@ typedef struct {
 uint8_t computeAckChecksum(uint32_t nextSeqNum, uint8_t advWindowSize);
 
 void makeAck(Ack &ack, uint32_t nextSeqNum, uint8_t advWindowSize);
-void makeAck(Ack &ack, Ack* &_ack);
 void makeFileSizeAck(Ack &ack, uint32_t size);
 void makeStartFileAck(Ack &ack);
 void makeEndFileAck(Ack &ack);
