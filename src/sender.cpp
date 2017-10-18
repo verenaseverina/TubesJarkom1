@@ -54,6 +54,8 @@ void validate(int count, char** &arg)
 
 	sscanf(arg[1],"%s",filename);
 	dest_ip = ((((ip[0] << 8) + ip[1]) << 8 + ip[2]) << 8) + ip[3];
+	
+	if(win_size >= 256){win_size = 256;}
 }
 
 void send_data()
@@ -98,8 +100,6 @@ void send_data()
 			else senderSendPacket(window, sock_fd, server_addr, seqnum, file_buffer[seqnum-1]);
 		}
 
-		if(seqnum > size) break;
-
 		while(true)
 		{
 			int _recv = senderReceiveACK(window, sock_fd, server_addr);
@@ -110,6 +110,8 @@ void send_data()
 				break;
 			}
 		}
+
+		if(window.LAR == size) break;
 	}
 	/*
 	// Send end file
