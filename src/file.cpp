@@ -18,10 +18,13 @@ void open_file(const char* &filename, FILE* &file, const char* mode)
 {
     file = fopen(filename, mode); // open in binary mode
 
-    if(file == NULL) 
+    if(mode == "rb")
     {
-        perror("Error opening file");
-        exit(1);
+        if(file == NULL) 
+        {
+            perror("Error opening file");
+            exit(1);
+        }
     }
 }
 
