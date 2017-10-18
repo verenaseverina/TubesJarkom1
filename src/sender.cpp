@@ -72,34 +72,28 @@ void send_data()
 
 	// Send file size
 	makeFileSizePacket(packet, size);
-	_packet = &packet;
+	//_packet = &packet;
 
-	sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	sendto(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	exit(0);
 
 	// Receive file size ACK
-	int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 	
-	if(!(_recv < 0))
-	{
-		makeAck(ack, _ack);
-		if(verifyFileSizeAck(ack, size)) break;
-	}
+	makeAck(ack, _ack);
+	//if(verifyFileSizeAck(ack, size)) break;
 
 	// Send start file
 	makeStartFilePacket(packet);
 	_packet = &packet;
-
 	
 	sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 
 	// Receive start file ACK
-	int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 	
-	if(!(_recv < 0))
-	{
-		makeAck(ack,_ack);
-		if(verifyStartFileAck(ack)) break;
-	}
+	makeAck(ack,_ack);
+	//if(verifyStartFileAck(ack)) break;
 	
 
 	// Send file
@@ -137,13 +131,11 @@ void send_data()
 	sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 
 	// Receive end file ACK
-	int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 	
-	if(!(_recv < 0))
-	{
-		makeAck(ack, _ack);
-		if(verifyEndFileAck(ack)) break;
-	}
+	makeAck(ack, _ack);
+	//if(verifyEndFileAck(ack)) break;
+	
 	
 	free(file_buffer);
 	printf("File sent.\n");
