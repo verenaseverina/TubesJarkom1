@@ -28,16 +28,6 @@ void makePacket(Packet &p, uint32_t sequenceNumber, char data)
 	p.checksum = computePacketChecksum(sequenceNumber, data);
 }
 
-void makePacket(Packet &p, Packet* &_p)
-{
-	p.SOH = _p->SOH;
-	p.STX = _p->STX;
-	p.ETX = _p->ETX;
-	p.seqnum = _p->seqnum;
-	p.data = _p->data;
-	p.checksum = _p->checksum;
-}
-
 void makeFileSizePacket(Packet &p, uint32_t size)
 {
 	p.SOH = 0x1;

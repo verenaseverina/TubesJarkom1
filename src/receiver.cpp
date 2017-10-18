@@ -60,18 +60,18 @@ void recv_data()
 	receiverMakeWindow(window, win_size);
 	
 	recvfrom(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
+	size = getFileSize(packet);
 	//makePacket(packet, _packet);
-
-	printf("Hello World\n");
-	exit(0);
 
 	if(verifyFileSizePacket(packet, size))
 	{
-		size = getFileSize(packet);
+		printf("packet\n");
 		makeFileSizeAck(ack, size);
-		_ack = &ack;
-		sendto(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+		//_ack = &ack;
+		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
+
+	exit(0);
 
 	recvfrom(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
 	
@@ -88,7 +88,7 @@ void recv_data()
 	}
 
 	recvfrom(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
-	makePacket(packet, _packet);
+	//makePacket(packet, _packet);
 	
 	if(verifyEndFilePacket(packet))
 	{

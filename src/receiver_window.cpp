@@ -19,7 +19,7 @@ void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &
 	Packet* _packet;
 
 	recvfrom(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
-	makePacket(packet, _packet);
+	//makePacket(packet, _packet);
 	
 	if(verifyPacket(packet)) // check paket
 	{

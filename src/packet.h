@@ -15,7 +15,6 @@ uint8_t computePacketChecksum(uint32_t seqnum, char data);
 uint32_t getFileSize(Packet &p);
 
 void makePacket(Packet &p, uint32_t sequenceNumber, char data);
-void makePacket(Packet &p, Packet* &_p);
 void makeFileSizePacket(Packet &p, uint32_t size);
 void makeStartFilePacket(Packet &p);
 void makeEndFilePacket(Packet &p);

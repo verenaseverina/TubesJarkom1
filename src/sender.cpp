@@ -75,12 +75,14 @@ void send_data()
 	//_packet = &packet;
 
 	sendto(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-	exit(0);
 
 	// Receive file size ACK
-	recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
-	
-	makeAck(ack, _ack);
+	recvfrom(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	printf("ack");
+
+	exit(0);
+
+	//makeAck(ack, _ack);
 	//if(verifyFileSizeAck(ack, size)) break;
 
 	// Send start file
@@ -92,7 +94,7 @@ void send_data()
 	// Receive start file ACK
 	recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 	
-	makeAck(ack,_ack);
+	//makeAck(ack,_ack);
 	//if(verifyStartFileAck(ack)) break;
 	
 
@@ -133,7 +135,7 @@ void send_data()
 	// Receive end file ACK
 	recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 	
-	makeAck(ack, _ack);
+	//makeAck(ack, _ack);
 	//if(verifyEndFileAck(ack)) break;
 	
 	
