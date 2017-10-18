@@ -16,10 +16,8 @@ void receiverMakeWindow(recvWindow &window, uint32_t maxSize)
 void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, socklen_t &client_len, char* &file_buffer)
 {
 	Packet packet;
-	Packet* _packet;
 
-	recvfrom(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
-	//makePacket(packet, _packet);
+	recvfrom(sockfd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
 	
 	if(verifyPacket(packet)) // check paket
 	{
@@ -105,10 +103,7 @@ void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &
 void receiverSendACK(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, uint32_t nextSeqNum)
 {
 	Ack ack;
-	Ack* _ack;
 	
-	makeAck(ack, nextSeqNum, window.max_size - window.bufferCount); // adv window size = maxSize - bufferCount
-	_ack = &ack;
-	
-	sendto(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+	makeAck(ack, nextSeqNum, window.max_size - window.bufferCount); // adv window size = maxSize - bufferCount;
+	sendto(sockfd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 }

@@ -11,17 +11,14 @@ void senderMakeWindow(senderWindow &window, uint32_t maxSize, uint32_t lastSeqNu
 
 int senderReceiveACK(senderWindow &window, int &sockfd, struct sockaddr_in &server_addr)
 {
-	Ack* _ack;
 	Ack ack;
 	socklen_t server_len = sizeof(server_addr);
 
-	int _recv = recvfrom(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	int _recv = recvfrom(sockfd, &ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 
 	if(_recv < 0) return -1;
 	else
 	{
-		ack = *_ack;
-
 		if(verifyAck(ack)) // check ack
 		{ 
 			window.recv_adv_windsize = ack.adv_windsize; // get adv_windsize from ack	
@@ -38,10 +35,7 @@ int senderReceiveACK(senderWindow &window, int &sockfd, struct sockaddr_in &serv
 void senderSendPacket(senderWindow &window, int &sockfd, struct sockaddr_in &server_addr, uint32_t seqnum, char data)
 {
 	Packet packet;
-	Packet *_packet;
 
 	makePacket(packet, seqnum, data);
-	_packet = &packet;
-	
-	sendto(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	sendto(sockfd, &packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 }
