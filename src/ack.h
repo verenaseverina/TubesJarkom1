@@ -4,7 +4,7 @@
 #include <strings.h>
 
 typedef struct {
-    char ACK = 0x6; // ACK
+    char ACK; // ACK
     uint32_t next_seqnum; // next sequence number
     uint8_t adv_windsize; // advertised window size
     uint8_t checksum; // checksum
@@ -13,6 +13,7 @@ typedef struct {
 uint8_t computeAckChecksum(uint32_t nextSeqNum, uint8_t advWindowSize);
 
 void makeAck(Ack &ack, uint32_t nextSeqNum, uint8_t advWindowSize);
+void makeAck(Ack &ack, Ack* &_ack);
 void makeFileSizeAck(Ack &ack, uint32_t size);
 void makeStartFileAck(Ack &ack);
 void makeEndFileAck(Ack &ack);

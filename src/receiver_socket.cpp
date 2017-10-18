@@ -5,11 +5,11 @@
 
 #include "receiver_socket.h"
 
-void open_receiver(int &socket_fd)
+void open_receiver(int &sock_fd)
 {
-    socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
     
-    if(socket_fd < 0)
+    if(sock_fd < 0)
     {
         perror("Error opening socket");
         exit(1);
@@ -24,9 +24,9 @@ void setup_receiver(struct sockaddr_in &server_addr, unsigned int port_num)
 	server_addr.sin_port = htons(port_num);
 }
 
-void bind_socket(int socket_fd, struct sockaddr_in &server_addr)
+void bind_socket(int &sock_fd, struct sockaddr_in &server_addr)
 {
-    int _bind = bind(socket_fd,(struct sockaddr*) &server_addr, sizeof(server_addr));
+    int _bind = bind(sock_fd,(struct sockaddr*) &server_addr, sizeof(server_addr));
     
     if( _bind < 0)
     {

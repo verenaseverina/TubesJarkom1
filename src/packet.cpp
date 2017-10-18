@@ -10,7 +10,7 @@ uint8_t computePacketChecksum(uint32_t seqnum, char data)
 
 /* Extractor */
 
-uint32_t getFileSize(Packet p)
+uint32_t getFileSize(Packet &p)
 {
 	return p.seqnum - 0xFF000000;
 }
@@ -20,9 +20,22 @@ uint32_t getFileSize(Packet p)
 
 void makePacket(Packet &p, uint32_t sequenceNumber, char data)
 {
+	p.SOH = 0x1;
+	p.STX = 0x2;
+	p.ETX = 0x3;
 	p.seqnum = sequenceNumber;
 	p.data = data;
 	p.checksum = computePacketChecksum(sequenceNumber, data);
+}
+
+void makePacket(Packet &p, Packet* &_p)
+{
+	p.SOH = _p->SOH;
+	p.STX = _p->STX;
+	p.ETX = _p->ETX;
+	p.seqnum = _p->seqnum;
+	p.data = _p->data;
+	p.checksum = _p->checksum;
 }
 
 void makeFileSizePacket(Packet &p, uint32_t size)
@@ -67,7 +80,7 @@ bool verifyStartFilePacket(Packet &p)
 	return (p.seqnum == 0xFF000000 && p.data == (char) 0xFF && p.checksum == expected);
 }
 
-bool verifyEndFile(Packet &p)
+bool verifyEndFilePacket(Packet &p)
 {
 	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
 	return (p.seqnum == 0xFFFFFFFF && p.data == (char) 0xFF && p.checksum == expected);

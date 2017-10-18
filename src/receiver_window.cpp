@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "receiver_window.h"
 
 void receiverMakeWindow(recvWindow &window, uint32_t maxSize)
@@ -14,10 +16,10 @@ void receiverMakeWindow(recvWindow &window, uint32_t maxSize)
 void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, socklen_t &client_len, char* &file_buffer)
 {
 	Packet packet;
-	Packet * _packet;
+	Packet* _packet;
 
 	recvfrom(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
-	packet = *_packet;
+	makePacket(packet, _packet);
 	
 	if(verifyPacket(packet)) // check paket
 	{
@@ -73,15 +75,20 @@ void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &
 							window.lastIndex = -1; // no unordered packets in buffer
 						}
 						
-						window.LFR += missing_index;
+						window.LFR += missing_idx;
 						window.LAF = window.max_size + window.LFR;
 					}
 					else
 					{
 						int store_index = packet.seqnum - window.LFR - 1;  // compute corresponding index in recv buffer
-						window.lastIndex = max(store_index, window.lastIndex); // update lastIndex if necessary
-						window.receiverBuffer[store_index] = data; // store to recv buffer first
-						window.bufferCount++; // increment bufferCount
+
+						if(window.receiverBuffer[store_index] == '\0') // if buffer is filled, ignore the packet
+						{
+							window.lastIndex = std::max(store_index, window.lastIndex); // update lastIndex if necessary
+							window.receiverBuffer[store_index] = data; // store to recv buffer first
+							window.bufferCount++; // increment bufferCount
+						}
+						
 						receiverSendACK(window, sockfd, client_addr, window.LFR + 1); // next sequence number = LFR + 1 (expected packet)
 					}
 				}
@@ -95,7 +102,7 @@ void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &
 	}
 }
 
-void receiverSendACK(recvWindos &window, int &sockfd, struct sockaddr_in &client_addr, uint32_t nextSeqNum)
+void receiverSendACK(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, uint32_t nextSeqNum)
 {
 	Ack ack;
 	Ack* _ack;

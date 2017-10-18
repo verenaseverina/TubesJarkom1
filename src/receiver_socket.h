@@ -5,6 +5,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-void open_receiver(int &socket);
+void open_receiver(int &sock_fd);
 void setup_receiver(struct sockaddr_in &server_addr, unsigned int port_num);
-void bind_socket(int socket, struct sockaddr_in &server_addr);
+void bind_socket(int &sock_fd, struct sockaddr_in &server_addr);

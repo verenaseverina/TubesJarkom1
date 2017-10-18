@@ -12,9 +12,18 @@ uint8_t computeAckChecksum(uint32_t nextSeqNum, uint8_t advWindowSize)
 
 void makeAck(Ack &ack, uint32_t nextSeqNum, uint8_t advWindowSize)
 {
+	ack.ACK = 0x6;
 	ack.next_seqnum = nextSeqNum;
 	ack.adv_windsize = advWindowSize;
 	ack.checksum = computeAckChecksum(nextSeqNum, advWindowSize);
+}
+
+void makeAck(Ack &ack, Ack* &_ack)
+{
+	ack.ACK = _ack->ACK;
+	ack.next_seqnum = _ack->next_seqnum;
+	ack.adv_windsize = _ack->adv_windsize;
+	ack.checksum = _ack->checksum;
 }
 
 void makeFileSizeAck(Ack &ack, uint32_t size)

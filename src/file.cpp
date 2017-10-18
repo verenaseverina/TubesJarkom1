@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdint.h>
 
 #include "file.h"
 
@@ -24,7 +25,7 @@ void open_file(const char* &filename, FILE* &file, const char* mode)
     }
 }
 
-void read_file(const char* filename, long &file_size, char* &file_buffer)
+void read_file(const char* filename, uint32_t &file_size, char* &file_buffer)
 {
 	FILE* file;
 	open_file(filename, file, "rb");
@@ -43,7 +44,7 @@ void read_file(const char* filename, long &file_size, char* &file_buffer)
 	fclose(file);
 }
 
-void write_file(const char* filename, long &file_size, char* &file_buffer)
+void write_file(const char* filename, uint32_t &file_size, char* &file_buffer)
 {
 	FILE* file;
 	open_file(filename, file, "wb"); // open in binary mode

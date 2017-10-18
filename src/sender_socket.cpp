@@ -5,15 +5,21 @@
 
 #include "sender_socket.h"
 
-void open_sender(int &socket_fd)
+void open_sender(int &sock_fd)
 {
-    socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    sock_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	
-	if(socket_fd < 0)
+	if(sock_fd < 0)
 	{
 		perror("Error opening socket");
 		exit(1);
 	}
+
+	struct timeval timeout;      
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;
+
+	setsockopt(sock_fd, SOL_SOCKET, SO_RCVTIMEO, (char*) &timeout, sizeof(timeout)); // set receive timeout to 10 ms
 }
 
 void setup_sender(struct sockaddr_in &server_addr, unsigned long ip, unsigned int port_num)

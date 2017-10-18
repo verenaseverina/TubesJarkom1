@@ -15,19 +15,12 @@ unsigned int buf_size;
 unsigned long dest_ip;
 unsigned int dest_port;
 
-int socket_fd; // socket file descriptor
+int sock_fd; // socket file descriptor
 struct sockaddr_in server_addr; // server socket address
+socklen_t server_len;
 
-sendWindow window; // sender window
+senderWindow window; // sender window
 char* file_buffer; // file buffer
-
-// pthread condition variables and mutex
-pthread_cond_t packet_ack;
-pthread_cond_t file_size_ack;
-pthread_cond_t start_file_ack;
-pthread_cond_t end_file_ack;
-
-pthread_mutex_t mutex;
 
 /* Program */
 
@@ -63,72 +56,103 @@ void validate(int count, char** &arg)
 	dest_ip = ((((ip[0] << 8) + ip[1]) << 8 + ip[2]) << 8) + ip[3];
 }
 
-void* sendPacket()
-{
-	FILE* file;
-	long size; // file size
-
-	read_file(filename, size, file_buffer);
-
-	Packet packet;
-	Packet *_packet;
-
-	// send file size
-	makeFileSizePacket(packet, size);
-	*_packet = packet;
-	sendto(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-	
-
-	makeStartFilePacket(packet);
-	*_packet = packet;
-	sendto(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-
-	
-
-	makeEndFilePacket(packet);
-	*_packet = packet;
-	sendto(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-
-}
-
-void* receiveACK()
-{
-	Ack ack;
-	Ack* _ack;
-
-	recvfrom(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-	ack = *_ack;
-
-	if(verifyFileSizeAck(ack))
-	{
-	}
-
-	recvfrom(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-	ack = *_ack;
-
-	if(verifyStartFileAck(ack))
-	{
-	}
-
-	recvfrom(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
-	ack = *_ack;
-
-	if(verifyEndFileAck(ack))
-	{
-	}
-}
-
-void* timer()
-{
-
-}
-
 void send_data()
 {
-	senderMakeWindow(window, win_size);
+	Packet packet;
+	Packet* _packet;
+	Ack ack;
+	Ack* _ack;
+	uint32_t size; // file size
 
+	server_len = sizeof(server_addr);
+
+	// Read file
+	read_file(filename, size, file_buffer);
+	senderMakeWindow(window, win_size, size);
+
+	// Send file size
+	makeFileSizePacket(packet, size);
+	_packet = &packet;
+
+	while(true)
+	{
+		sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+
+		// Receive file size ACK
+		int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+		
+		if(!(_recv < 0))
+		{
+			makeAck(ack, _ack);
+			if(verifyFileSizeAck(ack, size)) break;
+		}
+	}
+
+	// Send start file
+	makeStartFilePacket(packet);
+	_packet = &packet;
+
+	while(true)
+	{
+		sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+
+		// Receive start file ACK
+		int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+		
+		if(!(_recv < 0))
+		{
+			makeAck(ack,_ack);
+			if(verifyStartFileAck(ack)) break;
+		}
+	}
+
+	// Send file
+
+	int seqnum = 0;
+
+	while(seqnum <= size)
+	{
+		for(int i=1;i<=window.max_size;i++)
+		{
+			seqnum++;
+
+			if(seqnum > size) break;
+			else senderSendPacket(window, sock_fd, server_addr, seqnum, file_buffer[seqnum-1]);
+		}
+
+		if(seqnum > size) break;
+
+		while(true)
+		{
+			int _recv = senderReceiveACK(window, sock_fd, server_addr);
+			
+			if(_recv == -1)
+			{
+				seqnum = window.LAR; // reset seqnum to LAR
+				break;
+			}
+		}
+	}
+
+	// Send end file
+	makeEndFilePacket(packet);
+	_packet = &packet;
+
+	while(true)
+	{
+		sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+
+		// Receive end file ACK
+		int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+		
+		if(!(_recv < 0))
+		{
+			makeAck(ack, _ack);
+			if(verifyEndFileAck(ack)) break;
+		}
+	}
+	
 	free(file_buffer);
-
 	printf("File sent.\n");
 }
 
@@ -136,7 +160,7 @@ int main(int argc, char** argv)
 {
 	validate(argc, argv);
 
-	open_sender(socket_fd);
+	open_sender(sock_fd);
 	setup_sender(server_addr, dest_ip, dest_port);
 
 	send_data();
