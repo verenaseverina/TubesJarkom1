@@ -59,25 +59,25 @@ void recv_data()
 	client_len = sizeof(client_addr);
 	receiverMakeWindow(window, win_size);
 
-	while(true)
-	{
-		recvfrom(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
-		makePacket(packet, _packet);
+	
+	recvfrom(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
+	makePacket(packet, _packet);
 
-		if(verifyFileSizePacket(packet, size))
-		{
-			size = getFileSize(packet);
-			makeFileSizeAck(ack, size);
-			_ack = &ack;
-			sendto(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
-		}
-		else if(verifyStartFilePacket(packet))
-		{
-			makeStartFileAck(ack);
-			_ack = &ack;
-			sendto(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
-			break;
-		}
+	if(verifyFileSizePacket(packet, size))
+	{
+		size = getFileSize(packet);
+		makeFileSizeAck(ack, size);
+		_ack = &ack;
+		sendto(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+	}
+
+	recvfrom(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
+	
+	if(verifyStartFilePacket(packet))
+	{
+		makeStartFileAck(ack);
+		_ack = &ack;
+		sendto(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
 
 	while(window.LFR <= size)
@@ -87,16 +87,13 @@ void recv_data()
 
 	recvfrom(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
 	makePacket(packet, _packet);
-
-	while(true)
+	
+	if(verifyEndFilePacket(packet))
 	{
-		if(verifyEndFilePacket(packet))
-		{
-			makeEndFileAck(ack);
-			_ack = &ack;
-			sendto(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
-			break;
-		}
+		makeEndFileAck(ack);
+		_ack = &ack;
+		sendto(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+		break;
 	}
 
 	write_file(filename, size, file_buffer);

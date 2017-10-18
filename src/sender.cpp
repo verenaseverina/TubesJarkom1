@@ -74,37 +74,33 @@ void send_data()
 	makeFileSizePacket(packet, size);
 	_packet = &packet;
 
-	while(true)
-	{
-		sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 
-		// Receive file size ACK
-		int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
-		
-		if(!(_recv < 0))
-		{
-			makeAck(ack, _ack);
-			if(verifyFileSizeAck(ack, size)) break;
-		}
+	// Receive file size ACK
+	int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	
+	if(!(_recv < 0))
+	{
+		makeAck(ack, _ack);
+		if(verifyFileSizeAck(ack, size)) break;
 	}
 
 	// Send start file
 	makeStartFilePacket(packet);
 	_packet = &packet;
 
-	while(true)
-	{
-		sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	
+	sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 
-		// Receive start file ACK
-		int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
-		
-		if(!(_recv < 0))
-		{
-			makeAck(ack,_ack);
-			if(verifyStartFileAck(ack)) break;
-		}
+	// Receive start file ACK
+	int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	
+	if(!(_recv < 0))
+	{
+		makeAck(ack,_ack);
+		if(verifyStartFileAck(ack)) break;
 	}
+	
 
 	// Send file
 
@@ -138,18 +134,15 @@ void send_data()
 	makeEndFilePacket(packet);
 	_packet = &packet;
 
-	while(true)
-	{
-		sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+	sendto(sock_fd, _packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
 
-		// Receive end file ACK
-		int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
-		
-		if(!(_recv < 0))
-		{
-			makeAck(ack, _ack);
-			if(verifyEndFileAck(ack)) break;
-		}
+	// Receive end file ACK
+	int _recv = recvfrom(sock_fd, _ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
+	
+	if(!(_recv < 0))
+	{
+		makeAck(ack, _ack);
+		if(verifyEndFileAck(ack)) break;
 	}
 	
 	free(file_buffer);
