@@ -1,71 +1,111 @@
 #include "receiver_window.h"
 
-char receiverBuffer[256];
-
-void makeWindow(recvWindow &window, uint32_t maxSize){
+void receiverMakeWindow(recvWindow &window, uint32_t maxSize)
+{
 	window.max_size = maxSize;
 	window.current_size = 0;
 	window.LAF = 0;
-	window.LFR = 0; 
+	window.LFR = 0;
+	window.lastIndex = -1; // no missing packet
+	window.bufferCount = 0;
+
+	memset(window.receiverBuffer, 0, sizeof(window.receiverBuffer)); // fill receiver buffer with NULL
 }
 
-void growWindow(recvWindow &window, int delta){
-	if(window.current_size < window.max_size){
-		window.current_size += delta;
-		window.LAF += delta;	
-	}
-}
-
-void shrinkWindow(recvWindow &window, int delta){
-	if(window.current_size > 0){
-		window.current_size -= delta;
-		window.LFR += delta;	
-	}
-}
-
-void incrementWindow(recvWindow &window, int delta){
-	if(window.LAF < MAX_BUFFER_NUMBER){
-		growWindow(window,delta);
-	}
-	
-	if((window.LFR < MAX_BUFFER_NUMBER)&&(window.LAF-window.LFR >= window.max_size)){
-		shrinkWindow(window,delta);
-	}
-}
-
-void putPacketToBuffer(int sockfd, recvWindow &window, struct sockaddr_in client_addr, char *&fileBuffer){
-	char dataBuffer;
-	Packet * _packet;
+void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, socklen_t &client_len, char* &file_buffer)
+{
 	Packet packet;
+	Packet * _packet;
 
-	int lastIndex;//penunjuk ke index terbesar di receiver buffer
-	uint8_t advWinSize = window.current_size;
-	while(true){
-		recvfrom(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
-		packet = *_packet;
-						
-		if(verifyPacket(packet)){ //cek paket
-			dataBuffer = packet.data; //ambil data dari paket
-			if(lastIndex == 0){//cek kalau ada yang data yang belum diterima
-				fileBuffer[packet.seqnum-1] = dataBuffer;
-				//kirim ack
-				sendACK(packet.seqnum-1,sockfd,advWinSize--,(struct sockaddr* ) &client_addr);
-			}else{
-				lastIndex = packet.seqnum - window.LFR - 1;				
-				receiverBuffer[lastIndex] = dataBuffer;//masukin ke receiver buffer
-				//kirim ack nomor paket yang ilang(?)
-				
+	recvfrom(sockfd, _packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
+	packet = *_packet;
+	
+	if(verifyPacket(packet)) // check paket
+	{
+		if(packet.seqnum <= window.LAF) // accept all packets with seqnum less or equal than LAF
+		{
+			if(packet.seqnum > window.LFR) // new packet
+			{
+				char data = packet.data; // store data from packet
+
+				if(window.lastIndex == -1) // if there is no missing packet
+				{ 
+					file_buffer[packet.seqnum - 1] = data; // directly store to file buffer in corresponding index
+					receiverSendACK(window, sockfd, client_addr, packet.seqnum + 1); // send ACK
+					window.LAF++;
+					window.LFR++;
+				}
+				else // if there are missing packet
+				{
+					if(window.max_size - window.bufferCount != 0) // adv wind size is not zero
+					{
+						if(packet.seqnum == window.LFR + 1) // if the expected packet received
+						{
+							window.receiverBuffer[0] = data;
+							window.bufferCount++; // increment buffer count
+							int missing_idx = window.lastIndex + 1; // the next missing index
+
+							for(int i=0;i<=window.lastIndex;i++) // search until lastIndex
+							{
+								if(window.receiverBuffer[i] == '\0') // find the next missing index
+								{
+									missing_idx = i;
+									break;
+								}
+							}
+
+							// move data from recv buffer to file buffer
+							for(int i=0;i<missing_idx;i++)
+							{
+								file_buffer[window.LFR + i] = window.receiverBuffer[i];
+								window.bufferCount--; // decrement buffer count
+							}
+
+							if(missing_idx != window.lastIndex + 1) // there are unordered packets again
+							{
+								for(int i=missing_idx;i<=window.lastIndex;i++)  // move all received unordered packets to front
+								{
+									window.receiverBuffer[i-missing_idx] = window.receiverBuffer[i];
+								}
+
+								window.lastIndex -= missing_idx;
+							}
+							else
+							{
+								memset(window.receiverBuffer, 0, sizeof(window.receiverBuffer)); // set all to NULL
+								window.lastIndex = -1; // no unordered packets in buffer
+							}
+
+							window.LFR += missing_index
+							window.LAF = window.max_size + window.LFR;
+						}
+						else
+						{
+							int store_index = packet.seqnum - window.LFR - 1;  // compute corresponding index in recv buffer
+							window.lastIndex = max(store_index, window.lastIndex); // update lastIndex if necessary
+							window.receiverBuffer[store_index] = data; // store to recv buffer first
+							window.bufferCount++; // increment bufferCount
+							receiverSendACK(window, sockfd, client_addr, window.LFR + 1); // next sequence number = LFR + 1 (expected packet)
+						}
+					}
+					else receiverSendACK(window, sockfd, client_addr, window.LFR + 1); // send ACK with 0 adv window size
+				}
 			}
-			
+			else // ACK is lost
+			{
+				receiverSendACK(window, sockfd, client_addr, window.LFR + 1); // next sequence number = LFR + 1 (expected packet)
+			}
 		}
-			
 	}
 }
 
-void sendACK(uint32_t bufferNumber, int sockfd, uint8_t advWinSize, struct sockaddr_in client_addr){
+void receiverSendACK(recvWindos &window, int &sockfd, struct sockaddr_in &client_addr, uint32_t nextSeqNum)
+{
 	Ack ack;
-	// belum dihandle buat yang ack kalau masih ada paket yang ilang : kirim nomor diri sendiri
-	makeAck(ack, bufferNumber+1, advWinSize);
-	Ack * _ack = &ack;
+	Ack* _ack;
+	
+	makeAck(ack, nextSeqNum, window.max_size - window.bufferCount); // adv window size = maxSize - bufferCount
+	_ack = &ack;
+	
 	sendto(sockfd, _ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 }

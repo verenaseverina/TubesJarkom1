@@ -1,12 +1,12 @@
 all: sendfile recvfile
 
-sendfile: bin/sender.o bin/ack.o bin/file.o bin/packet.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o
+sendfile: bin/sender.o bin/ack.o bin/file.o bin/packet.o bin/receiverframe.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o
 	@echo "Linking sendfile ..."
-	@g++ bin/sender.o bin/ack.o bin/file.o bin/packet.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o -o sendfile -g
+	@g++ bin/sender.o bin/ack.o bin/file.o bin/packet.o bin/receiverframe.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o -o sendfile -g -pthread
 
-recvfile: bin/receiver.o bin/ack.o bin/file.o bin/packet.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o
+recvfile: bin/receiver.o bin/ack.o bin/file.o bin/packet.o bin/receiverframe.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o
 	@echo "Linking recvfile ..."
-	@g++ bin/receiver.o bin/ack.o bin/file.o bin/packet.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o -o recvfile -g
+	@g++ bin/receiver.o bin/ack.o bin/file.o bin/packet.o bin/receiverframe.o bin/receiver_socket.o bin/receiver_window.o bin/sender_socket.o bin/sender_window.o -o recvfile -g
 
 bin/ack.o: src/ack.cpp src/ack.h
 	@echo "Compiling ack.cpp ..."
@@ -24,6 +24,10 @@ bin/receiver.o: src/receiver.cpp src/receiver_window.h src/receiver_socket.h
 	@echo "Compiling receiver.cpp ..."
 	@g++ -c src/receiver.cpp -o bin/receiver.o -g
 
+bin/receiverframe.o: src/receiverframe.cpp
+	@echo "Compiling receiverframe.cpp ..."
+	@g++ -c src/receiverframe.cpp -o bin/receiverframe.o -g
+
 bin/receiver_socket.o: src/receiver_socket.cpp src/receiver_socket.h
 	@echo "Compiling receiver_socket.cpp ..."
 	@g++ -c src/receiver_socket.cpp -o bin/receiver_socket.o -g
@@ -40,7 +44,7 @@ bin/sender_socket.o: src/sender_socket.cpp src/sender_socket.h
 	@echo "Compiling sender_socket.cpp ..."
 	@g++ -c src/sender_socket.cpp -o bin/sender_socket.o -g
 
-bin/sender_window.o: src/sender_window.cpp
+bin/sender_window.o: src/sender_window.cpp src/sender_window.h
 	@echo "Compiling sender_window.cpp ..."
 	@g++ -c src/sender_window.cpp -o bin/sender_window.o -g
 
