@@ -67,7 +67,7 @@ void recv_data()
 		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
 	else exit(1);
-
+	/*
 	recvfrom(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
 	
 	if(verifyStartFilePacket(packet))
@@ -75,12 +75,12 @@ void recv_data()
 		makeStartFileAck(ack);
 		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
-
+	*/
 	while(window.LFR < size)
 	{
 		receiverReceivePacket(window, sock_fd, client_addr, client_len, file_buffer);
 	}
-
+	/*
 	recvfrom(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
 	
 	if(verifyEndFilePacket(packet))
@@ -88,7 +88,7 @@ void recv_data()
 		makeEndFileAck(ack);
 		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
-
+	*/
 	write_file(filename, size, file_buffer);
 	printf("File received.\n");
 }

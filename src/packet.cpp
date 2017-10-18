@@ -37,7 +37,7 @@ void makeFileSizePacket(Packet &p, uint32_t size)
 	p.data = (char) 0xFF;
 	p.checksum = computePacketChecksum(p.seqnum, p.data);
 }
-
+/*
 void makeStartFilePacket(Packet &p)
 {
 	p.SOH = 0x1;
@@ -57,7 +57,7 @@ void makeEndFilePacket(Packet &p)
 	p.data = (char) 0xFF;
 	p.checksum = computePacketChecksum(p.seqnum, p.data);
 }
-
+*/
 
 /* Verify Packet */
 
@@ -72,7 +72,7 @@ bool verifyFileSizePacket(Packet &p, uint32_t size)
 	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
 	return (p.seqnum == 0xFF000000 + size && p.data == (char) 0xFF && p.checksum == expected);
 }
-
+/*
 bool verifyStartFilePacket(Packet &p)
 {
 	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
@@ -83,4 +83,4 @@ bool verifyEndFilePacket(Packet &p)
 {
 	uint8_t expected = computePacketChecksum(p.seqnum, p.data);
 	return (p.seqnum == 0xFFFFFFFF && p.data == (char) 0xFF && p.checksum == expected);
-}
+}*/

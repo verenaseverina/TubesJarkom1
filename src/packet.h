@@ -16,10 +16,10 @@ uint32_t getFileSize(Packet &p);
 
 void makePacket(Packet &p, uint32_t sequenceNumber, char data);
 void makeFileSizePacket(Packet &p, uint32_t size);
-void makeStartFilePacket(Packet &p);
-void makeEndFilePacket(Packet &p);
+//void makeStartFilePacket(Packet &p);
+//void makeEndFilePacket(Packet &p);
 
 bool verifyPacket(Packet &p);
 bool verifyFileSizePacket(Packet &p, uint32_t size);
-bool verifyStartFilePacket(Packet &p);
-bool verifyEndFilePacket(Packet &p);
+//bool verifyStartFilePacket(Packet &p);
+//bool verifyEndFilePacket(Packet &p);

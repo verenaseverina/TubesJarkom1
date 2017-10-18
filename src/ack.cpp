@@ -25,7 +25,7 @@ void makeFileSizeAck(Ack &ack, uint32_t size)
 	ack.adv_windsize = 0xFF;
 	ack.checksum = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
 }
-
+/*
 void makeStartFileAck(Ack &ack)
 {
 	ack.ACK = 0x6;
@@ -41,7 +41,7 @@ void makeEndFileAck(Ack &ack)
 	ack.adv_windsize = 0xFF;
 	ack.checksum = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
 }
-
+*/
 
 /* Verify ACK */
 
@@ -56,7 +56,7 @@ bool verifyFileSizeAck(Ack &ack, uint32_t size)
 	uint8_t expected = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
 	return (ack.next_seqnum == 0xFF000000 + size && ack.adv_windsize == 0xFF && ack.checksum == expected);
 }
-
+/*
 bool verifyStartFileAck(Ack &ack)
 {
 	uint8_t expected = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
@@ -67,4 +67,4 @@ bool verifyEndFileAck(Ack &ack)
 {
 	uint8_t expected = computeAckChecksum(ack.next_seqnum, ack.adv_windsize);
 	return (ack.next_seqnum == 0xFFFFFFFF && ack.adv_windsize == 0xFF && ack.checksum == expected);
-}
+}*/

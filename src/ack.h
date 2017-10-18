@@ -14,10 +14,10 @@ uint8_t computeAckChecksum(uint32_t nextSeqNum, uint8_t advWindowSize);
 
 void makeAck(Ack &ack, uint32_t nextSeqNum, uint8_t advWindowSize);
 void makeFileSizeAck(Ack &ack, uint32_t size);
-void makeStartFileAck(Ack &ack);
-void makeEndFileAck(Ack &ack);
+//void makeStartFileAck(Ack &ack);
+//void makeEndFileAck(Ack &ack);
 
 bool verifyAck(Ack &ack);
 bool verifyFileSizeAck(Ack &ack, uint32_t size);
-bool verifyStartFileAck(Ack &ack);
-bool verifyEndFileAck(Ack &ack);
+//bool verifyStartFileAck(Ack &ack);
+//bool verifyEndFileAck(Ack &ack);
