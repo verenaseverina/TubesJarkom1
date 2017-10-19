@@ -56,7 +56,7 @@ void validate(int count, char** &arg)
 	dest_ip = ((((ip[0] << 8) + ip[1]) << 8 + ip[2]) << 8) + ip[3];
 }
 
-void send_data()
+void send_data(char** &arg)
 {
 	Packet packet;
 	Ack ack;
@@ -65,16 +65,27 @@ void send_data()
 	server_len = sizeof(server_addr);
 
 	// Read file
+	printf("Reading file from filesystem...\n");
 	read_file(filename, size, file_buffer);
+	printf("File read.\n\n");
+
+	printf("Creating senderWindow... ");
 	senderMakeWindow(window, win_size, size);
+	printf("senderWindow created.\nInital window state : LFS = %d, LAR = %d, recv_adv_windsize = %d, max_size = %d\n\n", window.LFS, window.LAR, window.recv_adv_windsize, window.max_size);
 
 	// Send file size
 	makeFileSizePacket(packet, size);
+	printf("Sending file size...\n");
 	sendto(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &server_addr, sizeof(server_addr));
+
 
 	// Receive file size ACK
 	recvfrom(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &server_addr, &server_len);
 	if(!verifyFileSizeAck(ack, size)) exit(1);
+	printf("File size sent.\n\n");
+
+	printf("Sending \"%s\" (%d bytes) to %s:%d...\n\n", filename, size, arg[4], dest_port);
+
 	/*
 	// Send start file
 	makeStartFilePacket(packet);
@@ -121,7 +132,7 @@ void send_data()
 	if(!verifyEndFileAck(ack)) exit(1);	
 	*/
 	free(file_buffer);
-	printf("File sent.\n");
+	printf("File sent.\nSendfile complete.");
 }
 
 int main(int argc, char** argv)
@@ -131,7 +142,7 @@ int main(int argc, char** argv)
 	open_sender(sock_fd);
 	setup_sender(server_addr, dest_ip, dest_port);
 
-	send_data();
+	send_data(argv);
 
 	return 0;
 }

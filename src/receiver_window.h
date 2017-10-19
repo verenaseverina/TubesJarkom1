@@ -22,5 +22,5 @@ typedef struct {
 } recvWindow; // LFR < window <= LAF
 
 void receiverMakeWindow(recvWindow &window, uint32_t maxSize);
-void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, socklen_t &client_len, char* &file_buffer);
+void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, socklen_t &client_len, char* &file_buffer, int size);
 void receiverSendACK(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, uint32_t nextSeqNum);

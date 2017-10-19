@@ -55,18 +55,30 @@ void recv_data()
 	uint32_t size;
 
 	client_len = sizeof(client_addr);
+	printf("Creating recvWindow... ");
 	receiverMakeWindow(window, win_size);
+	printf("recvWindow created.\nInital window state : LAF = %d, LFR = %d, max_size = %d\n\n", window.LAF, window.LFR, window.max_size);
 	
 	recvfrom(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
 	size = getFileSize(packet);
+	printf("Received file size from sender. File size : %d bytes\n", size);
+	printf("Checking packet integrity...\n");
 
 	if(verifyFileSizePacket(packet, size))
 	{
+		printf("Integrity verified.\n\nSending ACK for file size...\n");
 		file_buffer = (char*) malloc(sizeof(char) * size);
 		makeFileSizeAck(ack, size);
 		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+		printf("ACK for file size sent.\n\n");
 	}
-	else exit(1);
+	else
+	{
+		printf("Integrity cannot be verified. Exiting now.\n\n");
+		exit(1);
+	}
+	
+	printf("Receiving %d bytes as \"%s\"...\n\n", size, filename);
 	/*
 	recvfrom(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
 	
@@ -78,7 +90,7 @@ void recv_data()
 	*/
 	while(window.LFR < size)
 	{
-		receiverReceivePacket(window, sock_fd, client_addr, client_len, file_buffer);
+		receiverReceivePacket(window, sock_fd, client_addr, client_len, file_buffer, size);
 	}
 	/*
 	recvfrom(sock_fd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
@@ -89,8 +101,11 @@ void recv_data()
 		sendto(sock_fd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
 	}
 	*/
+
+	printf("File received. Writing file to filesystem...\n");
+
 	write_file(filename, size, file_buffer);
-	printf("File received.\n");
+	printf("File written.\nRecvfile complete.");
 }
 
 int main(int argc, char** argv)

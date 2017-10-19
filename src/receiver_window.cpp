@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <algorithm>
 
 #include "receiver_window.h"
@@ -13,14 +14,19 @@ void receiverMakeWindow(recvWindow &window, uint32_t maxSize)
 	for(int i=0;i<256;i++) window.receiverBuffer[i] = '\0'; // fill receiver buffer with NULL
 }
 
-void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, socklen_t &client_len, char* &file_buffer)
+void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, socklen_t &client_len, char* &file_buffer, int size)
 {
 	Packet packet;
 
+	printf("Waiting for packet from receiver...\n");
 	recvfrom(sockfd, &packet, sizeof(packet), 0, (struct sockaddr* ) &client_addr, &client_len);
+	printf("Packet received. Packet details : seqnum = %d, data = '%c'\n", packet.seqnum, packet.data);
+	printf("Verifying packet...\n");
 	
 	if(verifyPacket(packet)) // check paket
 	{
+		printf("Packet verified.\n\n");
+
 		if(packet.seqnum > window.LFR) // new packet
 		{
 			char data = packet.data; // store data from packet
@@ -74,7 +80,9 @@ void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &
 						}
 						
 						window.LFR += missing_idx;
-						window.LAF = window.max_size + window.LFR;
+						
+						if(window.max_size + window.LFR >= size) window.LAF = size;
+						else window.LAF = window.max_size + window.LFR;
 					}
 					else
 					{
@@ -97,13 +105,18 @@ void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &
 		{
 			receiverSendACK(window, sockfd, client_addr, window.LFR + 1); // next sequence number = LFR + 1 (expected packet)
 		}
+
+		printf("Current window state : LAF = %d, LFR = %d, max_size = %d\n\n", window.LAF, window.LFR, window.max_size);
 	}
+	else printf("Packet verification failed. Drop packet.\n\n");
 }
 
 void receiverSendACK(recvWindow &window, int &sockfd, struct sockaddr_in &client_addr, uint32_t nextSeqNum)
 {
 	Ack ack;
 	
-	makeAck(ack, nextSeqNum, window.max_size - window.bufferCount); // adv window size = maxSize - bufferCount;
+	makeAck(ack, nextSeqNum, window.max_size - window.bufferCount); // adv window size = maxSize - bufferCount
+	printf("Sending ACK to receiver. ACK details : next_seqnum = %d, adv_windsize = %d\n", nextSeqNum, window.max_size - window.bufferCount);
 	sendto(sockfd, &ack, sizeof(ack), 0, (struct sockaddr* ) &client_addr, sizeof(client_addr));
+	printf("ACK sent. Current window state : LAF = %d, LFR = %d, max_size = %d\n", window.LAF, window.LFR, window.max_size);
 }
