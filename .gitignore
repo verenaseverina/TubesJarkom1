@@ -2,3 +2,5 @@ bin/*.o
 sendfile
 recvfile
 lorem.txt
+data/test/*
+data/result/*
