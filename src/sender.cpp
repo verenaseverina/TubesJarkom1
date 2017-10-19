@@ -101,7 +101,7 @@ void send_data(char** &arg)
 
 	int seqnum = 0;
 
-	while(seqnum <= size)
+	while(true)
 	{
 		for(int i=1;i<=window.max_size;i++)
 		{

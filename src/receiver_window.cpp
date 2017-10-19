@@ -35,7 +35,10 @@ void receiverReceivePacket(recvWindow &window, int &sockfd, struct sockaddr_in &
 			{ 
 				file_buffer[packet.seqnum - 1] = data; // directly store to file buffer in corresponding index
 				receiverSendACK(window, sockfd, client_addr, packet.seqnum + 1); // send ACK
-				window.LAF++;
+				
+				if(window.max_size + window.LFR >= size) window.LAF = size;
+				else window.LAF++;
+				
 				window.LFR++;
 			}
 			else // if there are missing packet

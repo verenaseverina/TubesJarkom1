@@ -36,7 +36,8 @@ int senderReceiveACK(senderWindow &window, int &sockfd, struct sockaddr_in &serv
 		}
 		else printf("ACK verification failed. Drop ACK.\n\n");
 
-		return 0;
+		if(window.LFS == window.LAR) return -1;
+		else return 0;
 	}
 }
 
