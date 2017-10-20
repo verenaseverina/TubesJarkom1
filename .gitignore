@@ -4,3 +4,5 @@ recvfile
 lorem.txt
 data/test/*
 data/result/*
+sendlog.txt
+recvlog.txt
